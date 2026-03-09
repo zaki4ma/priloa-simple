@@ -1,0 +1,154 @@
+/* 思考記録用スライダーのカスタムスタイル */
+.slider-enhanced {
+  -webkit-appearance: none;
+  appearance: none;
+  background: transparent;
+  cursor: pointer;
+  height: 40px; /* タップエリアを大きくする */
+  padding: 10px 0; /* 上下のパディングでタップエリア拡大 */
+}
+
+.slider-enhanced::-webkit-slider-track {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 6px;
+}
+
+.slider-enhanced::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 28px;
+  width: 28px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.15s ease-in-out;
+}
+
+.slider-enhanced::-webkit-slider-thumb:hover {
+  height: 32px;
+  width: 32px;
+  background: #2563eb;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.slider-enhanced::-webkit-slider-thumb:active {
+  height: 34px;
+  width: 34px;
+  background: #1d4ed8;
+}
+
+/* Firefox */
+.slider-enhanced::-moz-range-track {
+  width: 100%;
+  height: 8px;
+  background: #e5e7eb;
+  border-radius: 6px;
+  border: none;
+}
+
+.slider-enhanced::-moz-range-thumb {
+  border: 3px solid #ffffff;
+  height: 28px;
+  width: 28px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.15s ease-in-out;
+}
+
+.slider-enhanced::-moz-range-thumb:hover {
+  height: 32px;
+  width: 32px;
+  background: #2563eb;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.slider-enhanced::-moz-range-thumb:active {
+  height: 34px;
+  width: 34px;
+  background: #1d4ed8;
+}
+
+/* Edge/IE */
+.slider-enhanced::-ms-track {
+  width: 100%;
+  height: 8px;
+  background: transparent;
+  border-color: transparent;
+  color: transparent;
+}
+
+.slider-enhanced::-ms-fill-lower {
+  background: #3b82f6;
+  border-radius: 6px;
+}
+
+.slider-enhanced::-ms-fill-upper {
+  background: #e5e7eb;
+  border-radius: 6px;
+}
+
+.slider-enhanced::-ms-thumb {
+  border: 3px solid #ffffff;
+  height: 28px;
+  width: 28px;
+  border-radius: 50%;
+  background: #3b82f6;
+  cursor: pointer;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: all 0.15s ease-in-out;
+}
+
+.slider-enhanced::-ms-thumb:hover {
+  height: 32px;
+  width: 32px;
+  background: #2563eb;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.slider-enhanced::-ms-thumb:active {
+  height: 34px;
+  width: 34px;
+  background: #1d4ed8;
+}
+
+/* モバイルでのタッチサイズ向上 */
+@media (max-width: 768px) {
+  .slider-enhanced::-webkit-slider-thumb {
+    height: 32px;
+    width: 32px;
+  }
+
+  .slider-enhanced::-webkit-slider-thumb:hover,
+  .slider-enhanced::-webkit-slider-thumb:active {
+    height: 36px;
+    width: 36px;
+  }
+
+  .slider-enhanced::-moz-range-thumb {
+    height: 32px;
+    width: 32px;
+  }
+
+  .slider-enhanced::-moz-range-thumb:hover,
+  .slider-enhanced::-moz-range-thumb:active {
+    height: 36px;
+    width: 36px;
+  }
+
+  .slider-enhanced::-ms-thumb {
+    height: 32px;
+    width: 32px;
+  }
+
+  .slider-enhanced::-ms-thumb:hover,
+  .slider-enhanced::-ms-thumb:active {
+    height: 36px;
+    width: 36px;
+  }
+}
