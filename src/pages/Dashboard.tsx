@@ -15,47 +15,53 @@ export default function Dashboard() {
   useEffect(() => {
     if (!user) return
 
-    void (async () => {
-      const { data: postData } = await supabase
-        .from('posts')
-        .select('id, created_at')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false })
+    // 投稿データを取得
+    supabase
+      .from('posts')
+      .select('id, created_at')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false })
+      .then(({ data, error }) => {
+        if (error) { console.error('posts fetch error:', error); return }
 
-      const posts = postData ?? []
-      const today = new Date()
-      today.setHours(0, 0, 0, 0)
-      const thisMonth = today.getMonth()
-      const thisYear = today.getFullYear()
+        const posts = data ?? []
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const thisMonth = today.getMonth()
+        const thisYear = today.getFullYear()
 
-      const monthlyDays = new Set(
-        posts
-          .filter(p => {
-            const d = new Date(p.created_at)
-            return d.getMonth() === thisMonth && d.getFullYear() === thisYear
-          })
-          .map(p => new Date(p.created_at).toDateString())
-      ).size
+        const monthlyDays = new Set(
+          posts
+            .filter(p => {
+              const d = new Date(p.created_at)
+              return d.getMonth() === thisMonth && d.getFullYear() === thisYear
+            })
+            .map(p => new Date(p.created_at).toDateString())
+        ).size
 
-      const weeklyData = Array(8).fill(0)
-      posts.forEach(p => {
-        const diff = (today.getTime() - new Date(p.created_at).getTime()) / (7 * 24 * 60 * 60 * 1000)
-        const weekIndex = Math.floor(diff)
-        if (weekIndex >= 0 && weekIndex < 8) weeklyData[7 - weekIndex]++
-      })
+        const weeklyData = Array(8).fill(0)
+        posts.forEach(p => {
+          const diff = (today.getTime() - new Date(p.created_at).getTime()) / (7 * 24 * 60 * 60 * 1000)
+          const weekIndex = Math.floor(diff)
+          if (weekIndex >= 0 && weekIndex < 8) weeklyData[7 - weekIndex]++
+        })
 
-      const postIds = posts.map(p => p.id)
-      let stampsReceived = 0
-      if (postIds.length > 0) {
-        const { count } = await supabase
+        // 投稿数・週別グラフはすぐに反映
+        setStats(prev => ({ ...prev, total: posts.length, monthlyDays, weeklyData }))
+
+        // スタンプ数を別途取得
+        const postIds = posts.map(p => p.id)
+        if (postIds.length === 0) return
+
+        supabase
           .from('reactions')
           .select('id', { count: 'exact' })
           .in('post_id', postIds)
-        stampsReceived = count ?? 0
-      }
-
-      setStats({ total: posts.length, monthlyDays, stampsReceived, weeklyData })
-    })()
+          .then(({ count, error: rErr }) => {
+            if (rErr) { console.error('reactions fetch error:', rErr); return }
+            setStats(prev => ({ ...prev, stampsReceived: count ?? 0 }))
+          })
+      })
   }, [user])
 
   const maxWeekly = Math.max(...stats.weeklyData, 1)
