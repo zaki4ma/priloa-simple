@@ -61,18 +61,19 @@ export default function ShareModal({ todayPosts, onClose }: Props) {
       onClick={onClose}
     >
       <div
-        className="bg-white w-full max-w-lg rounded-t-3xl md:rounded-3xl p-6 shadow-xl"
+        className="bg-white w-full max-w-lg rounded-t-3xl md:rounded-3xl shadow-xl flex flex-col max-h-[85dvh]"
         onClick={e => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between mb-5">
+        {/* ヘッダー（固定） */}
+        <div className="flex items-center justify-between px-6 pt-6 pb-4 shrink-0">
           <h2 className="text-base font-bold text-gray-800">今日のできたことをシェア</h2>
           <button onClick={onClose} className="text-gray-400 hover:text-gray-600">
             <X size={20} />
           </button>
         </div>
 
-        {/* 投稿選択 */}
-        <div className="flex flex-col gap-2 mb-5">
+        {/* 投稿選択（スクロール） */}
+        <div className="overflow-y-auto px-6 flex flex-col gap-2">
           {todayPosts.map(p => (
             <label
               key={p.id}
@@ -89,27 +90,28 @@ export default function ShareModal({ todayPosts, onClose }: Props) {
           ))}
         </div>
 
-        {/* プレビュー */}
-        <div className="bg-gray-50 rounded-xl px-4 py-3 mb-4">
-          <p className="text-xs text-gray-400 mb-2">プレビュー</p>
-          <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
-            {selectedPosts.length > 0 ? tweetText : '投稿を1件以上選択してください'}
+        {/* プレビュー・ボタン（固定） */}
+        <div className="px-6 pb-6 pt-4 shrink-0">
+          <div className="bg-gray-50 rounded-xl px-4 py-3 mb-3">
+            <p className="text-xs text-gray-400 mb-2">プレビュー</p>
+            <p className="text-sm text-gray-700 whitespace-pre-wrap leading-relaxed">
+              {selectedPosts.length > 0 ? tweetText : '投稿を1件以上選択してください'}
+            </p>
+          </div>
+
+          <p className={`text-xs text-right mb-3 ${overLimit ? 'text-red-500 font-medium' : 'text-gray-400'}`}>
+            {charCount} / 280
+            {overLimit && '　チェックを外して減らしてください'}
           </p>
+
+          <button
+            onClick={handleShare}
+            disabled={overLimit || selectedPosts.length === 0}
+            className="w-full bg-black text-white rounded-full py-3 text-sm font-medium hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed"
+          >
+            𝕏 でシェアする
+          </button>
         </div>
-
-        {/* 文字数 */}
-        <p className={`text-xs text-right mb-4 ${overLimit ? 'text-red-500 font-medium' : 'text-gray-400'}`}>
-          {charCount} / 280
-          {overLimit && '　投稿のチェックを外して減らしてください'}
-        </p>
-
-        <button
-          onClick={handleShare}
-          disabled={overLimit || selectedPosts.length === 0}
-          className="w-full bg-black text-white rounded-full py-3 text-sm font-medium hover:bg-gray-800 disabled:opacity-40 disabled:cursor-not-allowed"
-        >
-          𝕏 でシェアする
-        </button>
       </div>
     </div>
   )
