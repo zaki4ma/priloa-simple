@@ -41,9 +41,10 @@ export default function Dashboard() {
             .map(p => new Date(p.created_at).toDateString())
         ).size
 
+        const now = Date.now()
         const weeklyData = Array(8).fill(0)
         posts.forEach(p => {
-          const diff = (today.getTime() - new Date(p.created_at).getTime()) / (7 * 24 * 60 * 60 * 1000)
+          const diff = (now - new Date(p.created_at).getTime()) / (7 * 24 * 60 * 60 * 1000)
           const weekIndex = Math.floor(diff)
           if (weekIndex >= 0 && weekIndex < 8) weeklyData[7 - weekIndex]++
         })
