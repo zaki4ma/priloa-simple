@@ -1,6 +1,7 @@
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom'
 import { AuthProvider, useAuth } from './contexts/AuthContext'
 import Header from './components/layout/Header'
+import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
 import Register from './pages/Register'
 import Home from './pages/Home'
@@ -24,15 +25,19 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route path="/login" element={user ? <Navigate to="/" replace /> : <Login />} />
-      <Route path="/register" element={user ? <Navigate to="/" replace /> : <Register />} />
+      {/* 公開ページ */}
+      <Route path="/" element={user ? <Navigate to="/home" replace /> : <LandingPage />} />
+      <Route path="/login" element={user ? <Navigate to="/home" replace /> : <Login />} />
+      <Route path="/register" element={user ? <Navigate to="/home" replace /> : <Register />} />
+
+      {/* 認証後ページ */}
       <Route path="/*" element={
         <AuthGuard>
           <div className="min-h-screen bg-gray-50">
             <Header />
-            <main className="md:pt-0">
+            <main>
               <Routes>
-                <Route path="/" element={<Home />} />
+                <Route path="/home" element={<Home />} />
                 <Route path="/garden" element={<Garden />} />
                 <Route path="/new" element={<NewPost />} />
                 <Route path="/dashboard" element={<Dashboard />} />

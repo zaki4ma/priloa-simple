@@ -3,7 +3,7 @@ import { Home, Users, BarChart2, Brain, User, LogOut } from 'lucide-react'
 import { useAuth } from '../../contexts/AuthContext'
 
 const navItems = [
-  { to: '/', icon: Home, label: 'ホーム' },
+  { to: '/home', icon: Home, label: 'ホーム' },
   { to: '/garden', icon: Users, label: 'みんな' },
   { to: '/dashboard', icon: BarChart2, label: '記録' },
   { to: '/thought-records', icon: Brain, label: 'CBT' },
@@ -18,7 +18,7 @@ export default function Header() {
     <>
       {/* desktop top bar */}
       <header className="hidden md:flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200">
-        <Link to="/" className="text-green-600 font-bold text-xl">Priloa</Link>
+        <Link to="/home" className="text-green-600 font-bold text-xl">Priloa</Link>
         <nav className="flex items-center gap-6">
           {navItems.map(({ to, label }) => (
             <Link
