@@ -1,10 +1,11 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus } from 'lucide-react'
+import { Plus, Share2 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import type { Post } from '../types'
 import { STAMPS } from '../types'
+import ShareModal from '../components/home/ShareModal'
 
 const UNLOCK_THRESHOLD = 30
 
@@ -13,6 +14,12 @@ export default function Home() {
   const [posts, setPosts] = useState<Post[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(true)
+  const [showShare, setShowShare] = useState(false)
+
+  const todayPosts = useMemo(() => {
+    const today = new Date().toDateString()
+    return posts.filter(p => new Date(p.created_at).toDateString() === today)
+  }, [posts])
 
   const fetchPosts = async () => {
     if (!user) return
@@ -50,13 +57,24 @@ export default function Home() {
           </h1>
           <p className="text-sm text-gray-500">今日も何か「できた」ことを記録しよう</p>
         </div>
-        <Link
-          to="/new"
-          className="flex items-center gap-1.5 bg-green-500 text-white rounded-full px-4 py-2 text-sm font-medium hover:bg-green-600"
-        >
-          <Plus size={16} />
-          投稿
-        </Link>
+        <div className="flex items-center gap-2">
+          {todayPosts.length > 0 && (
+            <button
+              onClick={() => setShowShare(true)}
+              className="flex items-center gap-1.5 border border-gray-200 text-gray-500 rounded-full px-3 py-2 text-sm hover:bg-gray-50"
+            >
+              <Share2 size={14} />
+              シェア
+            </button>
+          )}
+          <Link
+            to="/new"
+            className="flex items-center gap-1.5 bg-green-500 text-white rounded-full px-4 py-2 text-sm font-medium hover:bg-green-600"
+          >
+            <Plus size={16} />
+            投稿
+          </Link>
+        </div>
       </div>
 
       {!loading && totalCount < UNLOCK_THRESHOLD && (
@@ -129,6 +147,10 @@ export default function Home() {
             </div>
           ))}
         </div>
+      )}
+
+      {showShare && (
+        <ShareModal todayPosts={todayPosts} onClose={() => setShowShare(false)} />
       )}
     </div>
   )
