@@ -16,6 +16,16 @@ function buildTweetText(posts: Post[]): string {
   return header + body + FOOTER
 }
 
+// Twitterは全角文字を2文字としてカウントする
+function twitterLength(text: string): number {
+  let count = 0
+  for (const char of text) {
+    const code = char.codePointAt(0) ?? 0
+    count += code <= 0x00ff ? 1 : 2
+  }
+  return count
+}
+
 export default function ShareModal({ todayPosts, onClose }: Props) {
   const [selected, setSelected] = useState<Set<string>>(
     () => new Set(todayPosts.map(p => p.id))
@@ -27,7 +37,7 @@ export default function ShareModal({ todayPosts, onClose }: Props) {
   )
 
   const tweetText = useMemo(() => buildTweetText(selectedPosts), [selectedPosts])
-  const charCount = tweetText.length
+  const charCount = useMemo(() => twitterLength(tweetText), [tweetText])
   const overLimit = charCount > 280
 
   const toggle = (id: string) => {
