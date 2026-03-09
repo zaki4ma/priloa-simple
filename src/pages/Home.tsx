@@ -6,20 +6,24 @@ import { useAuth } from '../contexts/AuthContext'
 import type { Post } from '../types'
 import { STAMPS } from '../types'
 
+const UNLOCK_THRESHOLD = 30
+
 export default function Home() {
   const { user, profile } = useAuth()
   const [posts, setPosts] = useState<Post[]>([])
+  const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(true)
 
   const fetchPosts = async () => {
     if (!user) return
-    const { data } = await supabase
+    const { data, count } = await supabase
       .from('posts')
-      .select('*, reactions(*)')
+      .select('*, reactions(*)', { count: 'exact' })
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .limit(30)
     setPosts(data ?? [])
+    setTotalCount(count ?? 0)
     setLoading(false)
   }
 
@@ -39,7 +43,7 @@ export default function Home() {
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6 pb-24 md:pb-6">
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-lg font-bold text-gray-800">
             {profile?.avatar} {profile?.nickname}
@@ -54,6 +58,27 @@ export default function Home() {
           投稿
         </Link>
       </div>
+
+      {!loading && totalCount < UNLOCK_THRESHOLD && (
+        <div className="bg-white rounded-2xl px-4 py-3 shadow-sm mb-4">
+          <div className="flex items-center justify-between mb-1.5">
+            <p className="text-xs text-gray-500">🔍 成長レポートまで</p>
+            <p className="text-xs text-gray-400">{totalCount} / {UNLOCK_THRESHOLD}件</p>
+          </div>
+          <div className="w-full bg-gray-100 rounded-full h-1.5">
+            <div
+              className="bg-green-400 h-1.5 rounded-full transition-all"
+              style={{ width: `${Math.min((totalCount / UNLOCK_THRESHOLD) * 100, 100)}%` }}
+            />
+          </div>
+        </div>
+      )}
+
+      {!loading && totalCount >= UNLOCK_THRESHOLD && (
+        <div className="bg-green-50 border border-green-200 rounded-2xl px-4 py-3 mb-4 text-center">
+          <p className="text-xs text-green-700">🎉 成長レポートが解放されました！「記録」タブから確認できます</p>
+        </div>
+      )}
 
       {loading ? (
         <div className="text-center text-gray-400 py-12">読み込み中...</div>

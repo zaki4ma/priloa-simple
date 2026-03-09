@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 
+const UNLOCK_THRESHOLD = 30
+
 interface Stats {
   total: number
   monthlyDays: number
@@ -118,6 +120,56 @@ export default function Dashboard() {
               <p className="text-gray-400 text-xs mt-1">「できた」を記録し始めると統計が表示されます</p>
             </div>
           )}
+
+          {/* 成長分析アンロック */}
+          {(() => {
+            const progress = Math.min(stats.total, UNLOCK_THRESHOLD)
+            const isUnlocked = stats.total >= UNLOCK_THRESHOLD
+            const percent = Math.round((progress / UNLOCK_THRESHOLD) * 100)
+            return (
+              <div className={`rounded-2xl p-4 shadow-sm ${isUnlocked ? 'bg-green-50 border border-green-200' : 'bg-white'}`}>
+                <div className="flex items-center justify-between mb-2">
+                  <p className="text-sm font-medium text-gray-700">🔍 成長を振り返る</p>
+                  {isUnlocked ? (
+                    <span className="text-xs bg-green-500 text-white px-2 py-0.5 rounded-full">解放！</span>
+                  ) : (
+                    <span className="text-xs text-gray-400">{progress} / {UNLOCK_THRESHOLD}件</span>
+                  )}
+                </div>
+                {!isUnlocked ? (
+                  <>
+                    <div className="w-full bg-gray-100 rounded-full h-2 mb-2">
+                      <div
+                        className="bg-green-400 h-2 rounded-full transition-all"
+                        style={{ width: `${percent}%` }}
+                      />
+                    </div>
+                    <p className="text-xs text-gray-400 leading-relaxed">
+                      {progress === 0
+                        ? '投稿を積み重ねると、AIが過去の自分との成長を振り返るレポートを作成します'
+                        : progress < 10
+                        ? `あと${UNLOCK_THRESHOLD - progress}件！記録を続けよう`
+                        : progress < 20
+                        ? `いい調子！あと${UNLOCK_THRESHOLD - progress}件で解放されます`
+                        : `もう少し！あと${UNLOCK_THRESHOLD - progress}件で成長レポートが見られます`}
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p className="text-xs text-green-700 mb-3 leading-relaxed">
+                      {stats.total}件の記録が積み重なりました。AIがあなたの成長を分析します。
+                    </p>
+                    <button
+                      disabled
+                      className="w-full bg-green-500 text-white rounded-xl py-2.5 text-sm font-medium opacity-60 cursor-not-allowed"
+                    >
+                      成長レポートを見る（近日公開）
+                    </button>
+                  </>
+                )}
+              </div>
+            )
+          })()}
         </div>
     </div>
   )
