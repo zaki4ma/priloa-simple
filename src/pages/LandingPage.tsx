@@ -17,6 +17,13 @@ const stamps = [
   { emoji: '🌸', label: 'おつかれさま' },
 ]
 
+const feelings = [
+  '「頑張った」と思えない。何もできなかった気がする',
+  '褒められても「そんなことない」と素直に受け取れない',
+  '他の人と比べて、自分はダメだと落ち込んでしまう',
+  '続けなきゃと思うほど、できない自分が嫌になる',
+]
+
 const steps = [
   { num: '1', title: '小さな「できた」を書く', desc: '完璧じゃなくていい。今日起きられた、それだけでいい。' },
   { num: '2', title: 'みんなの投稿を見る', desc: '同じように小さな一歩を踏み出している人がいる。' },
@@ -42,7 +49,7 @@ export default function LandingPage() {
       <section className="relative overflow-hidden aurora-gradient">
         <FloatingParticles />
         <div className="relative z-10 max-w-3xl mx-auto px-6 pt-16 pb-20 text-center">
-          <p className="text-green-700 text-sm font-medium mb-4">小さなできたを、ここに置いていこう</p>
+          <p className="text-green-700 text-sm font-medium mb-4">自分を褒めるのが苦手な人のための記録アプリ</p>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800 leading-snug mb-6">
             「今日も生きていた」<br />
             それだけでじゅうぶんです
@@ -59,6 +66,24 @@ export default function LandingPage() {
             無料ではじめる
           </Link>
         </div>
+      </section>
+
+      {/* こんな人へ */}
+      <section className="max-w-2xl mx-auto px-6 py-16">
+        <h2 className="text-xl font-bold text-gray-800 text-center mb-2">こんな気持ち、ありませんか？</h2>
+        <p className="text-center text-sm text-gray-500 mb-8">Priloaは、そんな人のために作りました</p>
+        <div className="flex flex-col gap-3">
+          {feelings.map(f => (
+            <div key={f} className="flex items-start gap-3 bg-gray-50 rounded-2xl px-5 py-4">
+              <span className="text-green-300 font-bold mt-0.5 shrink-0">—</span>
+              <p className="text-gray-600 text-sm leading-relaxed">{f}</p>
+            </div>
+          ))}
+        </div>
+        <p className="text-center text-gray-500 text-sm mt-8 leading-relaxed">
+          そのままのあなたで、いい。<br />
+          「できた」の基準は、あなたが決める。
+        </p>
       </section>
 
       {/* できたの例 */}
