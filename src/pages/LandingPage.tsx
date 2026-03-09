@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom'
+import FloatingParticles from '../components/landing/FloatingParticles'
 
 const examples = [
   '今日も生きていた',
@@ -38,23 +39,26 @@ export default function LandingPage() {
       </header>
 
       {/* ヒーロー */}
-      <section className="max-w-3xl mx-auto px-6 pt-16 pb-20 text-center">
-        <p className="text-green-600 text-sm font-medium mb-4">小さなできたを、ここに置いていこう</p>
-        <h1 className="text-3xl md:text-4xl font-bold text-gray-800 leading-snug mb-6">
-          「今日も生きていた」<br />
-          それだけでじゅうぶんです
-        </h1>
-        <p className="text-gray-500 text-base leading-relaxed mb-10 max-w-md mx-auto">
-          Priloaは、どんなに小さなことでも「できた」として記録し、
-          そっと応援し合える場所です。
-          頑張らなくていい。比べなくていい。
-        </p>
-        <Link
-          to="/register"
-          className="inline-block bg-green-500 text-white px-8 py-3.5 rounded-full text-sm font-medium hover:bg-green-600 shadow-sm"
-        >
-          無料ではじめる
-        </Link>
+      <section className="relative overflow-hidden aurora-gradient">
+        <FloatingParticles />
+        <div className="relative z-10 max-w-3xl mx-auto px-6 pt-16 pb-20 text-center">
+          <p className="text-green-700 text-sm font-medium mb-4">小さなできたを、ここに置いていこう</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 leading-snug mb-6">
+            「今日も生きていた」<br />
+            それだけでじゅうぶんです
+          </h1>
+          <p className="text-gray-600 text-base leading-relaxed mb-10 max-w-md mx-auto">
+            Priloaは、どんなに小さなことでも「できた」として記録し、
+            そっと応援し合える場所です。
+            頑張らなくていい。比べなくていい。
+          </p>
+          <Link
+            to="/register"
+            className="inline-block bg-green-500 text-white px-8 py-3.5 rounded-full text-sm font-medium hover:bg-green-600 shadow-sm"
+          >
+            無料ではじめる
+          </Link>
+        </div>
       </section>
 
       {/* できたの例 */}

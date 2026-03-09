@@ -10,3 +10,22 @@ body {
   background-color: #f9fafb;
   color: #111827;
 }
+
+@keyframes aurora {
+  0%, 100% { background-position: 0% 50%; }
+  33%       { background-position: 100% 50%; }
+  66%       { background-position: 50% 0%; }
+}
+
+@keyframes float-up {
+  0%   { transform: translateY(0px) translateX(0px);   opacity: 0; }
+  8%   { opacity: 1; }
+  92%  { opacity: 0.6; }
+  100% { transform: translateY(-680px) translateX(18px); opacity: 0; }
+}
+
+.aurora-gradient {
+  background: linear-gradient(135deg, #f0fff4, #dcfce7, #d1fae5, #ede9fe, #dbeafe, #f0fff4);
+  background-size: 400% 400%;
+  animation: aurora 20s ease infinite;
+}
