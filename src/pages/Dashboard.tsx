@@ -1,8 +1,15 @@
 import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
+import BadgeList from '../components/badges/BadgeList'
 
 const UNLOCK_THRESHOLD = 30
+
+interface PostData {
+  id: string
+  created_at: string
+  genre: string | null
+}
 
 interface Stats {
   total: number
@@ -14,19 +21,21 @@ interface Stats {
 export default function Dashboard() {
   const { user } = useAuth()
   const [stats, setStats] = useState<Stats>({ total: 0, monthlyDays: 0, stampsReceived: 0, weeklyData: [] })
+  const [allPosts, setAllPosts] = useState<PostData[]>([])
   useEffect(() => {
     if (!user) return
 
     // 投稿データを取得
     supabase
       .from('posts')
-      .select('id, created_at')
+      .select('id, created_at, genre')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .then(({ data, error }) => {
         if (error) { console.error('posts fetch error:', error); return }
 
         const posts = data ?? []
+        setAllPosts(posts)
         const today = new Date()
         today.setHours(0, 0, 0, 0)
         const thisMonth = today.getMonth()
@@ -121,6 +130,9 @@ export default function Dashboard() {
               <p className="text-gray-400 text-xs mt-1">「できた」を記録し始めると統計が表示されます</p>
             </div>
           )}
+
+          {/* バッジ */}
+          <BadgeList posts={allPosts} stampsReceived={stats.stampsReceived} />
 
           {/* 成長分析アンロック */}
           {(() => {
