@@ -36,7 +36,10 @@ export default function LandingPage() {
 
       {/* ヘッダー */}
       <header className="flex items-center justify-between px-6 py-4 max-w-3xl mx-auto">
-        <span className="text-green-600 font-bold text-xl">Priloa</span>
+        <div className="flex items-center gap-2">
+          <img src="/logo_priloa.png" alt="Priloa" className="w-8 h-8" />
+          <span className="text-green-600 font-bold text-xl">Priloa</span>
+        </div>
         <div className="flex items-center gap-3">
           <Link to="/login" className="text-sm text-gray-500 hover:text-gray-700">ログイン</Link>
           <Link to="/register" className="text-sm bg-green-500 text-white px-4 py-2 rounded-full hover:bg-green-600">
@@ -49,6 +52,7 @@ export default function LandingPage() {
       <section className="relative overflow-hidden aurora-gradient">
         <FloatingParticles />
         <div className="relative z-10 max-w-3xl mx-auto px-6 pt-16 pb-20 text-center">
+          <img src="/logo_priloa.png" alt="Priloa" className="w-20 h-20 mx-auto mb-4" />
           <p className="text-green-700 text-sm font-medium mb-4">自分を褒めるのが苦手な人のための記録アプリ</p>
           <h1 className="text-3xl md:text-4xl font-bold text-gray-800 leading-snug mb-6">
             「今日も生きていた」<br />

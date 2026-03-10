@@ -18,7 +18,10 @@ export default function Header() {
     <>
       {/* desktop top bar */}
       <header className="hidden md:flex items-center justify-between px-6 py-3 bg-white border-b border-gray-200">
-        <Link to="/home" className="text-green-600 font-bold text-xl">Priloa</Link>
+        <Link to="/home" className="flex items-center gap-2 text-green-600 font-bold text-xl">
+          <img src="/logo_priloa.png" alt="Priloa" className="w-7 h-7" />
+          Priloa
+        </Link>
         <nav className="flex items-center gap-6">
           {navItems.map(({ to, label }) => (
             <Link
