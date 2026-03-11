@@ -9,12 +9,19 @@ import ShareModal from '../components/home/ShareModal'
 
 const UNLOCK_THRESHOLD = 30
 
+const toDateKey = (d: Date) =>
+  `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+
 export default function Home() {
   const { user, profile } = useAuth()
   const [posts, setPosts] = useState<Post[]>([])
   const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [showShare, setShowShare] = useState(false)
+  const [todayReflection, setTodayReflection] = useState<{ id: string; comment: string } | null>(null)
+  const [reflectionInput, setReflectionInput] = useState('')
+  const [reflectionSaving, setReflectionSaving] = useState(false)
+  const [reflectionEditing, setReflectionEditing] = useState(false)
 
   const todayPosts = useMemo(() => {
     const today = new Date().toDateString()
@@ -34,7 +41,39 @@ export default function Home() {
     setLoading(false)
   }
 
-  useEffect(() => { fetchPosts() }, [user])
+  const fetchTodayReflection = async () => {
+    if (!user) return
+    const today = toDateKey(new Date())
+    const { data } = await supabase
+      .from('daily_reflections')
+      .select('id, comment')
+      .eq('user_id', user.id)
+      .eq('date', today)
+      .maybeSingle()
+    setTodayReflection(data ?? null)
+    if (data) setReflectionInput(data.comment)
+  }
+
+  useEffect(() => { fetchPosts(); fetchTodayReflection() }, [user])
+
+  const handleSaveReflection = async () => {
+    if (!user || !reflectionInput.trim()) return
+    setReflectionSaving(true)
+    const today = toDateKey(new Date())
+    if (todayReflection) {
+      await supabase
+        .from('daily_reflections')
+        .update({ comment: reflectionInput.trim() })
+        .eq('id', todayReflection.id)
+    } else {
+      await supabase
+        .from('daily_reflections')
+        .insert({ user_id: user.id, date: today, comment: reflectionInput.trim() })
+    }
+    setReflectionSaving(false)
+    setReflectionEditing(false)
+    fetchTodayReflection()
+  }
 
   const formatDate = (dateStr: string) => {
     const d = new Date(dateStr)
@@ -95,6 +134,51 @@ export default function Home() {
       {!loading && totalCount >= UNLOCK_THRESHOLD && (
         <div className="bg-green-50 border border-green-200 rounded-2xl px-4 py-3 mb-4 text-center">
           <p className="text-xs text-green-700">🎉 成長レポートが解放されました！「記録」タブから確認できます</p>
+        </div>
+      )}
+
+      {/* 今日の振り返り */}
+      {!loading && todayPosts.length > 0 && (
+        <div className="bg-white rounded-2xl p-4 shadow-sm mb-4">
+          <p className="text-xs font-medium text-gray-500 mb-2">✨ 今日の自分へのひとこと</p>
+          {todayReflection && !reflectionEditing ? (
+            <div>
+              <p className="text-sm text-gray-800 leading-relaxed">{todayReflection.comment}</p>
+              <button
+                onClick={() => setReflectionEditing(true)}
+                className="mt-2 text-xs text-gray-400 hover:text-gray-600"
+              >
+                編集する
+              </button>
+            </div>
+          ) : (
+            <div>
+              <textarea
+                value={reflectionInput}
+                onChange={e => setReflectionInput(e.target.value)}
+                placeholder="今日の自分を褒めてあげよう..."
+                rows={2}
+                className="w-full text-sm text-gray-800 placeholder-gray-400 outline-none resize-none"
+              />
+              <div className="flex items-center justify-between mt-2">
+                {reflectionEditing && (
+                  <button
+                    onClick={() => { setReflectionEditing(false); setReflectionInput(todayReflection?.comment ?? '') }}
+                    className="text-xs text-gray-400 hover:text-gray-600"
+                  >
+                    キャンセル
+                  </button>
+                )}
+                <button
+                  onClick={handleSaveReflection}
+                  disabled={reflectionSaving || !reflectionInput.trim()}
+                  className="ml-auto bg-green-500 text-white rounded-full px-4 py-1.5 text-xs font-medium hover:bg-green-600 disabled:opacity-40 transition-colors"
+                >
+                  {reflectionSaving ? '保存中...' : '保存'}
+                </button>
+              </div>
+            </div>
+          )}
         </div>
       )}
 

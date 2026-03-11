@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import BadgeList from '../components/badges/BadgeList'
+import ReflectionCalendar from '../components/reflections/ReflectionCalendar'
 
 const UNLOCK_THRESHOLD = 30
 
@@ -20,6 +21,7 @@ interface Stats {
 
 export default function Dashboard() {
   const { user } = useAuth()
+  const [tab, setTab] = useState<'stats' | 'calendar'>('stats')
   const [stats, setStats] = useState<Stats>({ total: 0, monthlyDays: 0, stampsReceived: 0, weeklyData: [] })
   const [allPosts, setAllPosts] = useState<PostData[]>([])
   useEffect(() => {
@@ -86,9 +88,31 @@ export default function Dashboard() {
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6 pb-24 md:pb-6">
-      <h1 className="text-lg font-bold text-gray-800 mb-6">記録の振り返り</h1>
+      <h1 className="text-lg font-bold text-gray-800 mb-4">記録の振り返り</h1>
 
-      <div className="flex flex-col gap-4">
+      {/* タブ */}
+      <div className="flex bg-gray-100 rounded-xl p-1 mb-6">
+        <button
+          onClick={() => setTab('stats')}
+          className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-colors ${tab === 'stats' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500'}`}
+        >
+          統計
+        </button>
+        <button
+          onClick={() => setTab('calendar')}
+          className={`flex-1 py-1.5 text-sm font-medium rounded-lg transition-colors ${tab === 'calendar' ? 'bg-white text-gray-800 shadow-sm' : 'text-gray-500'}`}
+        >
+          カレンダー
+        </button>
+      </div>
+
+      {tab === 'calendar' && (
+        <div className="bg-white rounded-2xl p-4 shadow-sm">
+          <ReflectionCalendar />
+        </div>
+      )}
+
+      {tab === 'stats' && <div className="flex flex-col gap-4">
           <div className="grid grid-cols-3 gap-3">
             <div className="bg-white rounded-2xl p-4 shadow-sm text-center">
               <p className="text-2xl font-bold text-green-500">{stats.total}</p>
@@ -183,7 +207,7 @@ export default function Dashboard() {
               </div>
             )
           })()}
-        </div>
+        </div>}
     </div>
   )
 }
