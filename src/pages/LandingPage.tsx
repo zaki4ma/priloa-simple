@@ -76,13 +76,16 @@ export default function LandingPage() {
       <section className="max-w-2xl mx-auto px-6 py-16">
         <h2 className="text-xl font-bold text-gray-800 text-center mb-2">こんな気持ち、ありませんか？</h2>
         <p className="text-center text-sm text-gray-500 mb-8">Priloaは、そんな人のために作りました</p>
-        <div className="flex flex-col gap-3">
-          {feelings.map(f => (
-            <div key={f} className="flex items-start gap-3 bg-gray-50 rounded-2xl px-5 py-4">
-              <span className="text-green-300 font-bold mt-0.5 shrink-0">—</span>
-              <p className="text-gray-600 text-sm leading-relaxed">{f}</p>
-            </div>
-          ))}
+        <div className="flex flex-col md:flex-row gap-6 items-start">
+          <img src="/lp_nayami.png" alt="悩む人のイラスト" className="w-48 mx-auto md:mx-0 md:w-44 shrink-0" />
+          <div className="flex flex-col gap-3 flex-1">
+            {feelings.map(f => (
+              <div key={f} className="flex items-start gap-3 bg-gray-50 rounded-2xl px-5 py-4">
+                <span className="text-green-300 font-bold mt-0.5 shrink-0">—</span>
+                <p className="text-gray-600 text-sm leading-relaxed">{f}</p>
+              </div>
+            ))}
+          </div>
         </div>
         <p className="text-center text-gray-500 text-sm mt-8 leading-relaxed">
           そのままのあなたで、いい。<br />
@@ -111,8 +114,9 @@ export default function LandingPage() {
 
       {/* 共感セクション */}
       <section className="max-w-2xl mx-auto px-6 py-16">
-        <div className="bg-green-50 rounded-3xl p-8 text-center">
-          <p className="text-gray-700 text-base leading-relaxed">
+        <div className="bg-green-50 rounded-3xl p-8 flex flex-col md:flex-row items-center gap-6">
+          <img src="/lp_smile.png" alt="笑顔の人のイラスト" className="w-40 shrink-0" />
+          <p className="text-gray-700 text-base leading-relaxed text-center md:text-left">
             「何もできなかった」と思う日でも、<br />
             今日ここにいること、それはすでに「できた」こと。<br /><br />
             <span className="text-gray-500 text-sm">
