@@ -76,7 +76,7 @@ export default function LandingPage() {
       <section className="max-w-2xl mx-auto px-6 py-16">
         <h2 className="text-xl font-bold text-gray-800 text-center mb-2">こんな気持ち、ありませんか？</h2>
         <p className="text-center text-sm text-gray-500 mb-8">Priloaは、そんな人のために作りました</p>
-        <div className="flex flex-col md:flex-row gap-6 items-start">
+        <div className="flex flex-col md:flex-row gap-6 items-center">
           <img src="/lp_nayami.png" alt="悩む人のイラスト" className="w-48 mx-auto md:mx-0 md:w-44 shrink-0" />
           <div className="flex flex-col gap-3 flex-1">
             {feelings.map(f => (
@@ -91,25 +91,6 @@ export default function LandingPage() {
           そのままのあなたで、いい。<br />
           「できた」の基準は、あなたが決める。
         </p>
-      </section>
-
-      {/* できたの例 */}
-      <section className="bg-gray-50 py-16 px-6">
-        <div className="max-w-2xl mx-auto">
-          <p className="text-center text-sm text-gray-500 mb-8">
-            こんな小さなことが、ここでは立派な「できた」です
-          </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            {examples.map(ex => (
-              <span
-                key={ex}
-                className="bg-white border border-gray-200 text-gray-600 text-sm px-4 py-2 rounded-full shadow-sm"
-              >
-                {ex}
-              </span>
-            ))}
-          </div>
-        </div>
       </section>
 
       {/* 共感セクション */}
@@ -127,55 +108,90 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* スタンプ応援 */}
+      {/* できたの例 */}
       <section className="bg-gray-50 py-16 px-6">
-        <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-xl font-bold text-gray-800 mb-2">言葉より気軽に、でも確かに届く</h2>
-          <p className="text-gray-500 text-sm mb-8">
-            4種類のスタンプで、そっと応援できます
-          </p>
-          <div className="flex flex-wrap justify-center gap-3">
-            {stamps.map(s => (
-              <div
-                key={s.label}
-                className="bg-white border border-gray-200 rounded-full px-4 py-2.5 flex items-center gap-2 shadow-sm"
-              >
-                <span className="text-xl">{s.emoji}</span>
-                <span className="text-sm text-gray-600">{s.label}</span>
-              </div>
-            ))}
+        <div className="max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-8">
+          <img src="/lp_use.png" alt="スマホを使う人のイラスト" className="w-40 shrink-0 mx-auto md:mx-0" />
+          <div className="flex-1">
+            <p className="text-center md:text-left text-sm text-gray-500 mb-6">
+              こんな小さなことが、ここでは立派な「できた」です
+            </p>
+            <div className="flex flex-wrap justify-center md:justify-start gap-3">
+              {examples.map(ex => (
+                <span
+                  key={ex}
+                  className="bg-white border border-gray-200 text-gray-600 text-sm px-4 py-2 rounded-full shadow-sm"
+                >
+                  {ex}
+                </span>
+              ))}
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 使い方 */}
+      {/* スタンプ応援 */}
       <section className="max-w-2xl mx-auto px-6 py-16">
-        <h2 className="text-xl font-bold text-gray-800 text-center mb-10">シンプルな3ステップ</h2>
-        <div className="flex flex-col gap-6">
-          {steps.map(s => (
-            <div key={s.num} className="flex items-start gap-4">
-              <span className="w-8 h-8 rounded-full bg-green-100 text-green-600 font-bold text-sm flex items-center justify-center shrink-0">
-                {s.num}
-              </span>
-              <div>
-                <p className="font-medium text-gray-800 text-sm mb-1">{s.title}</p>
-                <p className="text-gray-500 text-sm leading-relaxed">{s.desc}</p>
-              </div>
+        <div className="flex flex-col md:flex-row items-center gap-8">
+          <div className="flex-1 text-center md:text-left">
+            <h2 className="text-xl font-bold text-gray-800 mb-2">言葉より気軽に、でも確かに届く</h2>
+            <p className="text-gray-500 text-sm mb-6">
+              4種類のスタンプで、そっと応援できます
+            </p>
+            <div className="flex flex-wrap justify-center md:justify-start gap-3">
+              {stamps.map(s => (
+                <div
+                  key={s.label}
+                  className="bg-white border border-gray-200 rounded-full px-4 py-2.5 flex items-center gap-2 shadow-sm"
+                >
+                  <span className="text-xl">{s.emoji}</span>
+                  <span className="text-sm text-gray-600">{s.label}</span>
+                </div>
+              ))}
             </div>
-          ))}
+          </div>
+          <img src="/lp_change.png" alt="スマホを見る人のイラスト" className="w-40 shrink-0 mx-auto md:mx-0" />
+        </div>
+      </section>
+
+      {/* 使い方 */}
+      <section className="bg-gray-50 py-16 px-6">
+        <div className="max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-8">
+          <div className="flex-1">
+            <h2 className="text-xl font-bold text-gray-800 text-center md:text-left mb-8">シンプルな3ステップ</h2>
+            <div className="flex flex-col gap-6">
+              {steps.map(s => (
+                <div key={s.num} className="flex items-start gap-4">
+                  <span className="w-8 h-8 rounded-full bg-green-100 text-green-600 font-bold text-sm flex items-center justify-center shrink-0">
+                    {s.num}
+                  </span>
+                  <div>
+                    <p className="font-medium text-gray-800 text-sm mb-1">{s.title}</p>
+                    <p className="text-gray-500 text-sm leading-relaxed">{s.desc}</p>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <img src="/lp_record.png" alt="記録する人のイラスト" className="w-44 shrink-0 mx-auto md:mx-0" />
         </div>
       </section>
 
       {/* CTA */}
-      <section className="bg-green-50 py-16 px-6 text-center">
-        <h2 className="text-xl font-bold text-gray-800 mb-3">今日の「できた」を残してみませんか</h2>
-        <p className="text-gray-500 text-sm mb-8">無料・登録1分・比べない場所</p>
-        <Link
-          to="/register"
-          className="inline-block bg-green-500 text-white px-8 py-3.5 rounded-full text-sm font-medium hover:bg-green-600 shadow-sm"
-        >
-          無料ではじめる
-        </Link>
+      <section className="bg-green-50 py-16 px-6">
+        <div className="max-w-2xl mx-auto flex flex-col md:flex-row items-center gap-8">
+          <div className="flex-1 text-center md:text-left">
+            <h2 className="text-xl font-bold text-gray-800 mb-3">今日の「できた」を残してみませんか</h2>
+            <p className="text-gray-500 text-sm mb-8">無料・登録1分・比べない場所</p>
+            <Link
+              to="/register"
+              className="inline-block bg-green-500 text-white px-8 py-3.5 rounded-full text-sm font-medium hover:bg-green-600 shadow-sm"
+            >
+              無料ではじめる
+            </Link>
+          </div>
+          <img src="/lp_check.png" alt="チェックリストと笑顔の人のイラスト" className="w-44 shrink-0 mx-auto md:mx-0" />
+        </div>
       </section>
 
       {/* フッター */}
