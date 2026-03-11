@@ -31,9 +31,9 @@ export interface Reaction {
 export type StampType = 'clap' | 'star' | 'muscle' | 'flower'
 
 export const STAMPS: { type: StampType; emoji: string; label: string }[] = [
-  { type: 'clap', emoji: '🌱', label: 'それだけでじゅうぶん' },
-  { type: 'star', emoji: '☀️', label: '今日もいたね' },
-  { type: 'muscle', emoji: '🤝', label: '一緒にいるよ' },
+  { type: 'clap', emoji: '🌱', label: 'すごい！' },
+  { type: 'star', emoji: '☀️', label: 'えらい！' },
+  { type: 'muscle', emoji: '🤝', label: '応援してるよ' },
   { type: 'flower', emoji: '🌸', label: 'おつかれさま' },
 ]
 

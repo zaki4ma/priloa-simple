@@ -11,9 +11,9 @@ const examples = [
 ]
 
 const stamps = [
-  { emoji: '🌱', label: 'それだけでじゅうぶん' },
-  { emoji: '☀️', label: '今日もいたね' },
-  { emoji: '🤝', label: '一緒にいるよ' },
+  { emoji: '🌱', label: 'すごい！' },
+  { emoji: '☀️', label: 'えらい！' },
+  { emoji: '🤝', label: '応援してるよ' },
   { emoji: '🌸', label: 'おつかれさま' },
 ]
 
