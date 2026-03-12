@@ -25,6 +25,7 @@ export default function Register() {
         nickname,
         avatar: '🌱',
       })
+      window.gtag?.('event', 'sign_up', { method: 'email' })
     }
     navigate('/')
   }
