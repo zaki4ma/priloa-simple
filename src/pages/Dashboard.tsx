@@ -78,6 +78,20 @@ export default function Dashboard() {
       })
   }, [user])
 
+  const streak = (() => {
+    if (allPosts.length === 0) return 0
+    const toKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+    const dateSet = new Set(allPosts.map(p => toKey(new Date(p.created_at))))
+    const cursor = new Date()
+    if (!dateSet.has(toKey(cursor))) {
+      cursor.setDate(cursor.getDate() - 1)
+      if (!dateSet.has(toKey(cursor))) return 0
+    }
+    let s = 0
+    while (dateSet.has(toKey(cursor))) { s++; cursor.setDate(cursor.getDate() - 1) }
+    return s
+  })()
+
   const maxWeekly = Math.max(...stats.weeklyData, 1)
 
   const weekLabels = Array(8).fill(0).map((_, i) => {
@@ -113,7 +127,7 @@ export default function Dashboard() {
       )}
 
       {tab === 'stats' && <div className="flex flex-col gap-4">
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <div className="bg-white rounded-2xl p-4 shadow-sm text-center">
               <p className="text-2xl font-bold text-green-500">{stats.total}</p>
               <p className="text-xs text-gray-500 mt-1">総投稿数</p>
@@ -125,6 +139,12 @@ export default function Dashboard() {
             <div className="bg-white rounded-2xl p-4 shadow-sm text-center">
               <p className="text-2xl font-bold text-pink-400">{stats.stampsReceived}</p>
               <p className="text-xs text-gray-500 mt-1">もらったスタンプ</p>
+            </div>
+            <div className="bg-white rounded-2xl p-4 shadow-sm text-center">
+              <p className="text-2xl font-bold text-orange-500">
+                {streak > 0 ? `🔥 ${streak}` : '-'}
+              </p>
+              <p className="text-xs text-gray-500 mt-1">連続記録日数</p>
             </div>
           </div>
 

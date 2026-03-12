@@ -12,6 +12,23 @@ const UNLOCK_THRESHOLD = 30
 const toDateKey = (d: Date) =>
   `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
 
+const calcStreak = (createdAts: string[]): number => {
+  if (createdAts.length === 0) return 0
+  const toKey = (d: Date) => `${d.getFullYear()}-${d.getMonth()}-${d.getDate()}`
+  const dateSet = new Set(createdAts.map(d => toKey(new Date(d))))
+  const cursor = new Date()
+  if (!dateSet.has(toKey(cursor))) {
+    cursor.setDate(cursor.getDate() - 1)
+    if (!dateSet.has(toKey(cursor))) return 0
+  }
+  let streak = 0
+  while (dateSet.has(toKey(cursor))) {
+    streak++
+    cursor.setDate(cursor.getDate() - 1)
+  }
+  return streak
+}
+
 export default function Home() {
   const { user, profile } = useAuth()
   const [posts, setPosts] = useState<Post[]>([])
@@ -23,6 +40,7 @@ export default function Home() {
   const [reflectionInput, setReflectionInput] = useState('')
   const [reflectionSaving, setReflectionSaving] = useState(false)
   const [reflectionEditing, setReflectionEditing] = useState(false)
+  const [streak, setStreak] = useState(0)
 
   const todayPosts = useMemo(() => {
     const today = new Date().toDateString()
@@ -42,6 +60,15 @@ export default function Home() {
     setLoading(false)
   }
 
+  const fetchStreak = async () => {
+    if (!user) return
+    const { data } = await supabase
+      .from('posts')
+      .select('created_at')
+      .eq('user_id', user.id)
+    setStreak(calcStreak((data ?? []).map(p => p.created_at)))
+  }
+
   const fetchTodayReflection = async () => {
     if (!user) return
     const today = toDateKey(new Date())
@@ -55,7 +82,7 @@ export default function Home() {
     if (data) setReflectionInput(data.comment)
   }
 
-  useEffect(() => { fetchPosts(); fetchTodayReflection() }, [user])
+  useEffect(() => { fetchPosts(); fetchTodayReflection(); fetchStreak() }, [user])
 
   const handleSaveReflection = async () => {
     if (!user || !reflectionInput.trim()) return
@@ -102,7 +129,14 @@ export default function Home() {
           <h1 className="text-lg font-bold text-gray-800">
             {profile?.avatar} {profile?.nickname}
           </h1>
-          <p className="text-sm text-gray-500">今日も何か「できた」ことを記録しよう</p>
+          <div className="flex items-center gap-2 mt-0.5">
+            <p className="text-sm text-gray-500">今日も何か「できた」ことを記録しよう</p>
+            {streak > 0 && (
+              <span className="flex items-center gap-0.5 text-xs font-medium text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">
+                🔥 {streak}日連続
+              </span>
+            )}
+          </div>
         </div>
         <div className="flex items-center gap-2">
           {todayPosts.length > 0 && (
