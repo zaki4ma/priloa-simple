@@ -41,6 +41,7 @@ export default function Home() {
   const [reflectionSaving, setReflectionSaving] = useState(false)
   const [reflectionEditing, setReflectionEditing] = useState(false)
   const [streak, setStreak] = useState(0)
+  const [pastPost, setPastPost] = useState<{ content: string; created_at: string; label: string } | null>(null)
 
   const todayPosts = useMemo(() => {
     const today = new Date().toDateString()
@@ -69,6 +70,35 @@ export default function Home() {
     setStreak(calcStreak((data ?? []).map(p => p.created_at)))
   }
 
+  const fetchPastPost = async () => {
+    if (!user) return
+    const milestones = [
+      { days: 365, label: '1年前' },
+      { days: 180, label: '半年前' },
+      { days: 90,  label: '3ヶ月前' },
+      { days: 60,  label: '2ヶ月前' },
+      { days: 30,  label: '1ヶ月前' },
+    ]
+    for (const { days, label } of milestones) {
+      const center = new Date()
+      center.setDate(center.getDate() - days)
+      const from = new Date(center); from.setDate(from.getDate() - 7)
+      const to   = new Date(center); to.setDate(to.getDate() + 7)
+      const { data } = await supabase
+        .from('posts')
+        .select('content, created_at')
+        .eq('user_id', user.id)
+        .gte('created_at', from.toISOString())
+        .lte('created_at', to.toISOString())
+        .order('created_at', { ascending: false })
+        .limit(1)
+      if (data && data.length > 0) {
+        setPastPost({ ...data[0], label })
+        return
+      }
+    }
+  }
+
   const fetchTodayReflection = async () => {
     if (!user) return
     const today = toDateKey(new Date())
@@ -82,7 +112,7 @@ export default function Home() {
     if (data) setReflectionInput(data.comment)
   }
 
-  useEffect(() => { fetchPosts(); fetchTodayReflection(); fetchStreak() }, [user])
+  useEffect(() => { fetchPosts(); fetchTodayReflection(); fetchStreak(); fetchPastPost() }, [user])
 
   const handleSaveReflection = async () => {
     if (!user || !reflectionInput.trim()) return
@@ -176,6 +206,17 @@ export default function Home() {
       {!loading && totalCount >= UNLOCK_THRESHOLD && (
         <div className="bg-green-50 border border-green-200 rounded-2xl px-4 py-3 mb-4 text-center">
           <p className="text-xs text-green-700">🎉 成長レポートが解放されました！「記録」タブから確認できます</p>
+        </div>
+      )}
+
+      {/* 過去の自分との比較 */}
+      {!loading && pastPost && (
+        <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 shadow-sm mb-4">
+          <p className="text-xs font-medium text-amber-600 mb-2">📖 {pastPost.label}の自分はこんなことができた</p>
+          <p className="text-sm text-gray-800 leading-relaxed">{pastPost.content}</p>
+          <p className="text-xs text-amber-400 mt-2">
+            {new Date(pastPost.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}
+          </p>
         </div>
       )}
 
