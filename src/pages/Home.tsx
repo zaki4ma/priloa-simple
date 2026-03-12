@@ -72,31 +72,25 @@ export default function Home() {
 
   const fetchPastPost = async () => {
     if (!user) return
-    const milestones = [
-      { days: 365, label: '1年前' },
-      { days: 180, label: '半年前' },
-      { days: 90,  label: '3ヶ月前' },
-      { days: 60,  label: '2ヶ月前' },
-      { days: 30,  label: '1ヶ月前' },
-    ]
-    for (const { days, label } of milestones) {
-      const center = new Date()
-      center.setDate(center.getDate() - days)
-      const from = new Date(center); from.setDate(from.getDate() - 7)
-      const to   = new Date(center); to.setDate(to.getDate() + 7)
-      const { data } = await supabase
-        .from('posts')
-        .select('content, created_at')
-        .eq('user_id', user.id)
-        .gte('created_at', from.toISOString())
-        .lte('created_at', to.toISOString())
-        .order('created_at', { ascending: false })
-        .limit(1)
-      if (data && data.length > 0) {
-        setPastPost({ ...data[0], label })
-        return
-      }
+    const toLabelFromDays = (days: number) => {
+      if (days >= 330) return '1年前'
+      if (days >= 150) return '半年前'
+      if (days >= 75)  return '3ヶ月前'
+      if (days >= 45)  return '2ヶ月前'
+      return '1ヶ月前'
     }
+    const threshold = new Date()
+    threshold.setDate(threshold.getDate() - 25)
+    const { data } = await supabase
+      .from('posts')
+      .select('content, created_at')
+      .eq('user_id', user.id)
+      .lte('created_at', threshold.toISOString())
+      .order('created_at', { ascending: true })
+      .limit(1)
+    if (!data || data.length === 0) return
+    const days = Math.floor((Date.now() - new Date(data[0].created_at).getTime()) / 86400000)
+    setPastPost({ ...data[0], label: toLabelFromDays(days) })
   }
 
   const fetchTodayReflection = async () => {
