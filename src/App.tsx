@@ -4,6 +4,8 @@ import Header from './components/layout/Header'
 import LandingPage from './pages/LandingPage'
 import Login from './pages/Login'
 import Register from './pages/Register'
+import ForgotPassword from './pages/ForgotPassword'
+import ResetPassword from './pages/ResetPassword'
 import Home from './pages/Home'
 import Garden from './pages/Garden'
 import NewPost from './pages/NewPost'
@@ -29,6 +31,8 @@ function AppRoutes() {
       <Route path="/" element={user ? <Navigate to="/home" replace /> : <LandingPage />} />
       <Route path="/login" element={user ? <Navigate to="/home" replace /> : <Login />} />
       <Route path="/register" element={user ? <Navigate to="/home" replace /> : <Register />} />
+      <Route path="/forgot-password" element={user ? <Navigate to="/home" replace /> : <ForgotPassword />} />
+      <Route path="/reset-password" element={<ResetPassword />} />
 
       {/* 認証後ページ */}
       <Route path="/*" element={
