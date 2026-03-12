@@ -12,6 +12,81 @@ interface PostData {
   genre: string | null
 }
 
+const GENRE_LABELS: { key: string; short: string }[] = [
+  { key: '運動',       short: '運動' },
+  { key: '健康',       short: '健康' },
+  { key: '生活',       short: '生活' },
+  { key: '仕事',       short: '仕事' },
+  { key: '勉強',       short: '勉強' },
+  { key: '趣味・楽しみ', short: '趣味' },
+  { key: '感情ケア・休息', short: '感情ケア' },
+  { key: '育児・子育て', short: '育児' },
+  { key: '人間関係',   short: '人間関係' },
+  { key: 'チャレンジ', short: 'チャレンジ' },
+]
+
+function GenreRadarChart({ posts }: { posts: PostData[] }) {
+  const cx = 150, cy = 150, R = 85
+  const N = GENRE_LABELS.length
+  const counts = GENRE_LABELS.map(g => posts.filter(p => p.genre === g.key).length)
+  const maxCount = Math.max(...counts, 1)
+  const hasData = counts.some(c => c > 0)
+
+  const angle = (i: number) => (2 * Math.PI / N) * i - Math.PI / 2
+  const pt = (i: number, r: number) => ({
+    x: cx + r * Math.cos(angle(i)),
+    y: cy + r * Math.sin(angle(i)),
+  })
+
+  const polygonPoints = (r: number) =>
+    GENRE_LABELS.map((_, i) => { const p = pt(i, r); return `${p.x},${p.y}` }).join(' ')
+
+  return (
+    <div>
+      <svg viewBox="0 0 300 300" className="w-full max-w-xs mx-auto">
+        {/* グリッド */}
+        {[0.25, 0.5, 0.75, 1].map(level => (
+          <polygon key={level} points={polygonPoints(R * level)}
+            fill="none" stroke="#e5e7eb" strokeWidth="1" />
+        ))}
+        {/* スポーク */}
+        {GENRE_LABELS.map((_, i) => {
+          const p = pt(i, R)
+          return <line key={i} x1={cx} y1={cy} x2={p.x} y2={p.y} stroke="#e5e7eb" strokeWidth="1" />
+        })}
+        {/* データ */}
+        {hasData && (
+          <polygon
+            points={counts.map((c, i) => { const p = pt(i, (c / maxCount) * R); return `${p.x},${p.y}` }).join(' ')}
+            fill="rgba(74,222,128,0.25)" stroke="#22c55e" strokeWidth="2"
+          />
+        )}
+        {/* ラベル */}
+        {GENRE_LABELS.map((g, i) => {
+          const p = pt(i, R + 24)
+          const a = angle(i)
+          const anchor = Math.cos(a) > 0.15 ? 'start' : Math.cos(a) < -0.15 ? 'end' : 'middle'
+          return (
+            <text key={i} x={p.x} y={p.y} textAnchor={anchor}
+              dominantBaseline="middle" fontSize="10.5" fill="#6b7280">
+              {g.short}
+            </text>
+          )
+        })}
+        {/* 件数ドット */}
+        {hasData && counts.map((c, i) => {
+          if (c === 0) return null
+          const p = pt(i, (c / maxCount) * R)
+          return <circle key={i} cx={p.x} cy={p.y} r="3" fill="#22c55e" />
+        })}
+      </svg>
+      {!hasData && (
+        <p className="text-center text-xs text-gray-400 mt-1">投稿にジャンルを設定すると表示されます</p>
+      )}
+    </div>
+  )
+}
+
 interface Stats {
   total: number
   monthlyDays: number
@@ -166,6 +241,11 @@ export default function Dashboard() {
                 <p key={i} className="flex-1 text-center text-gray-400" style={{ fontSize: '9px' }}>{label}</p>
               ))}
             </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-4 shadow-sm">
+            <p className="text-sm font-medium text-gray-700 mb-3">ジャンル分布</p>
+            <GenreRadarChart posts={allPosts} />
           </div>
 
           {stats.total === 0 && (
