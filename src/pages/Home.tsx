@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Share2 } from 'lucide-react'
+import { Plus, Share2, Trash2 } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import type { Post } from '../types'
@@ -18,6 +18,7 @@ export default function Home() {
   const [totalCount, setTotalCount] = useState(0)
   const [loading, setLoading] = useState(true)
   const [showShare, setShowShare] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const [todayReflection, setTodayReflection] = useState<{ id: string; comment: string } | null>(null)
   const [reflectionInput, setReflectionInput] = useState('')
   const [reflectionSaving, setReflectionSaving] = useState(false)
@@ -73,6 +74,13 @@ export default function Home() {
     setReflectionSaving(false)
     setReflectionEditing(false)
     fetchTodayReflection()
+  }
+
+  const handleDelete = async (postId: string) => {
+    await supabase.from('posts').delete().eq('id', postId)
+    setDeletingId(null)
+    setPosts(prev => prev.filter(p => p.id !== postId))
+    setTotalCount(prev => prev - 1)
   }
 
   const formatDate = (dateStr: string) => {
@@ -226,6 +234,29 @@ export default function Home() {
                     </div>
                   )}
                   <span className="text-xs text-gray-400">{formatDate(post.created_at)}</span>
+                  {deletingId === post.id ? (
+                    <div className="flex items-center gap-1.5">
+                      <button
+                        onClick={() => handleDelete(post.id)}
+                        className="text-xs text-red-500 font-medium hover:text-red-600"
+                      >
+                        削除
+                      </button>
+                      <button
+                        onClick={() => setDeletingId(null)}
+                        className="text-xs text-gray-400 hover:text-gray-600"
+                      >
+                        キャンセル
+                      </button>
+                    </div>
+                  ) : (
+                    <button
+                      onClick={() => setDeletingId(post.id)}
+                      className="text-gray-300 hover:text-red-400 transition-colors"
+                    >
+                      <Trash2 size={14} />
+                    </button>
+                  )}
                 </div>
               </div>
             </div>
