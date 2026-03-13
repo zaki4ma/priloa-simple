@@ -38,10 +38,38 @@ export async function analyzeGrowth(
   const earlyCategories = categoryByPeriod(sorted.slice(0, third))
   const recentCategories = categoryByPeriod(sorted.slice(third * 2))
 
+  // 文字数の変化（初期・最近の平均）
+  const avgLen = (ps: PostSummary[]) =>
+    ps.length === 0 ? 0 : Math.round(ps.reduce((s, p) => s + p.content.length, 0) / ps.length)
+  const earlyAvgLen = avgLen(sorted.slice(0, third))
+  const recentAvgLen = avgLen(sorted.slice(third * 2))
+
+  // 投稿時刻の分布（時間帯別）
+  const timeSlots = { 朝: 0, 昼: 0, 夕方: 0, 夜: 0, 深夜: 0 }
+  sorted.forEach(p => {
+    const h = new Date(p.created_at).getHours()
+    if (h >= 5 && h < 10) timeSlots['朝']++
+    else if (h >= 10 && h < 15) timeSlots['昼']++
+    else if (h >= 15 && h < 19) timeSlots['夕方']++
+    else if (h >= 19 && h < 24) timeSlots['夜']++
+    else timeSlots['深夜']++
+  })
+  const timeDistribution = Object.entries(timeSlots)
+    .filter(([, v]) => v > 0)
+    .sort((a, b) => b[1] - a[1])
+    .map(([k, v]) => `${k}(${v}件)`)
+    .join(', ')
+
   const prompt = `あなたは行動分析の専門家です。ユーザーの「できたこと」日記を時系列で分析し、本人が気づいていない変化・パターン・成長を具体的に伝えてください。
 
 【統計】
 - 総投稿数: ${stats.totalPosts}件 / 記録日数: ${stats.uniqueDays}日 / 連続: ${stats.streak}日
+
+【文章量の変化】
+- 初期の平均文字数: ${earlyAvgLen}字 → 最近の平均文字数: ${recentAvgLen}字
+
+【投稿時刻の傾向】
+- 時間帯別: ${timeDistribution}
 
 【初期の記録（カテゴリ別上位: ${earlyCategories}）】
 ${earlyPosts.join('\n')}
@@ -56,7 +84,8 @@ ${recentPosts.join('\n')}
 - 初期と最近で使う言葉・表現・テーマがどう変わったか（具体的な言葉を引用）
 - 本人が当たり前と思っているが実は継続できている行動
 - カテゴリや行動の多様性・集中度の変化
-- 文章の長さ・自信・ポジティブさの変化
+- 文章量の変化から読み取れる自己表現・内省の深化
+- 投稿時刻の傾向から見えるライフスタイルや習慣のパターン
 - 繰り返し登場するテーマや行動（本人が意識していないかもしれないもの）
 
 以下のJSON形式のみで返してください（他のテキスト不要）:
