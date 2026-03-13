@@ -15,9 +15,6 @@ export async function analyzeGrowth(
   posts: PostSummary[],
   stats: { totalPosts: number; uniqueDays: number; streak: number }
 ): Promise<GrowthAnalysisResult> {
-  const apiKey = import.meta.env.VITE_OPENAI_API_KEY
-  if (!apiKey) throw new Error('OpenAI API key が設定されていません')
-
   // 時系列順にソート
   const sorted = [...posts].sort(
     (a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime()
@@ -70,12 +67,20 @@ ${recentPosts.join('\n')}
   "newPerspective": "この記録から見えてくる、本人への新しい視点や気づきを促す一言（60字以内・疑問形不使用）"
 }`
 
-  const response = await fetch('https://api.openai.com/v1/chat/completions', {
+  const endpoint = import.meta.env.DEV
+    ? 'https://api.openai.com/v1/chat/completions'
+    : '/.netlify/functions/analyze-growth'
+
+  const headers: Record<string, string> = { 'Content-Type': 'application/json' }
+  if (import.meta.env.DEV) {
+    const apiKey = import.meta.env.VITE_OPENAI_API_KEY
+    if (!apiKey) throw new Error('OpenAI API key が設定されていません')
+    headers['Authorization'] = `Bearer ${apiKey}`
+  }
+
+  const response = await fetch(endpoint, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      Authorization: `Bearer ${apiKey}`,
-    },
+    headers,
     body: JSON.stringify({
       model: 'gpt-4o-mini',
       messages: [{ role: 'user', content: prompt }],
