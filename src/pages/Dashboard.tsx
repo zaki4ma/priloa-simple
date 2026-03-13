@@ -3,11 +3,13 @@ import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import BadgeList from '../components/badges/BadgeList'
 import ReflectionCalendar from '../components/reflections/ReflectionCalendar'
+import GrowthReport from '../components/dashboard/GrowthReport'
 
 const UNLOCK_THRESHOLD = 30
 
 interface PostData {
   id: string
+  content: string
   created_at: string
   genre: string | null
 }
@@ -105,7 +107,7 @@ export default function Dashboard() {
     // 投稿データを取得
     supabase
       .from('posts')
-      .select('id, created_at, genre')
+      .select('id, content, created_at, genre')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .then(({ data, error }) => {
@@ -292,17 +294,7 @@ export default function Dashboard() {
                     </p>
                   </>
                 ) : (
-                  <>
-                    <p className="text-xs text-green-700 mb-3 leading-relaxed">
-                      {stats.total}件の記録が積み重なりました。AIがあなたの成長を分析します。
-                    </p>
-                    <button
-                      disabled
-                      className="w-full bg-green-500 text-white rounded-xl py-2.5 text-sm font-medium opacity-60 cursor-not-allowed"
-                    >
-                      成長レポートを見る（近日公開）
-                    </button>
-                  </>
+                  <GrowthReport posts={allPosts} streak={streak} />
                 )}
               </div>
             )
