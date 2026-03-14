@@ -372,6 +372,11 @@ export default function Home() {
                   <p className="text-gray-800 text-sm leading-relaxed">{post.content}</p>
                   <div className="flex items-center justify-between mt-3">
                     <div className="flex items-center gap-2">
+                      {post.rating && post.rating > 0 && (
+                        <span className="text-base leading-none" title="記録時の気分">
+                          {MOOD_EMOJI[post.rating]}
+                        </span>
+                      )}
                       {post.genre && (
                         <span className="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">
                           {post.genre}
