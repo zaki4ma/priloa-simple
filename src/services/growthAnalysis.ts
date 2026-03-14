@@ -9,6 +9,7 @@ interface PostSummary {
   content: string
   genre: string | null
   created_at: string
+  rating?: number | null
 }
 
 export async function analyzeGrowth(
@@ -60,6 +61,24 @@ export async function analyzeGrowth(
     .map(([k, v]) => `${k}(${v}件)`)
     .join(', ')
 
+  // 気分スコアの集計（ratingが1-5のもののみ）
+  const moodPosts = sorted.filter(p => p.rating && p.rating > 0)
+  const moodAvg = moodPosts.length > 0
+    ? (moodPosts.reduce((s, p) => s + (p.rating ?? 0), 0) / moodPosts.length).toFixed(1)
+    : null
+  const positiveMoodPct = moodPosts.length > 0
+    ? Math.round(moodPosts.filter(p => (p.rating ?? 0) >= 4).length / moodPosts.length * 100)
+    : null
+  const recentMoodAvg = (() => {
+    const recent = sorted.slice(third * 2).filter(p => p.rating && p.rating > 0)
+    return recent.length > 0
+      ? (recent.reduce((s, p) => s + (p.rating ?? 0), 0) / recent.length).toFixed(1)
+      : null
+  })()
+  const moodSection = moodPosts.length >= 5
+    ? `【気分スコアの傾向】\n- 全体の平均気分: ${moodAvg}/5 / ポジティブ(4以上)の割合: ${positiveMoodPct}%\n- 最近の平均気分: ${recentMoodAvg}/5\n`
+    : ''
+
   const prompt = `あなたは行動分析の専門家です。ユーザーの「できたこと」日記を時系列で分析し、本人が気づいていない変化・パターン・成長を具体的に伝えてください。
 
 【統計】
@@ -70,6 +89,8 @@ export async function analyzeGrowth(
 
 【投稿時刻の傾向】
 - 時間帯別: ${timeDistribution}
+
+${moodSection}
 
 【初期の記録（カテゴリ別上位: ${earlyCategories}）】
 ${earlyPosts.join('\n')}

@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { motion, AnimatePresence } from 'framer-motion'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import { GENRES } from '../types'
@@ -13,6 +14,14 @@ const TEMPLATES = [
   'ベッドから起き上がれた',
 ]
 
+const MOODS = [
+  { rating: 1, emoji: '😔', label: 'つらい' },
+  { rating: 2, emoji: '😐', label: 'ふつう' },
+  { rating: 3, emoji: '🙂', label: 'まあまあ' },
+  { rating: 4, emoji: '😊', label: 'よかった' },
+  { rating: 5, emoji: '🌟', label: 'とてもよかった' },
+]
+
 export default function NewPost() {
   const { user } = useAuth()
   const navigate = useNavigate()
@@ -22,6 +31,10 @@ export default function NewPost() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
 
+  // ムード入力モーダル
+  const [newPostId, setNewPostId] = useState<string | null>(null)
+  const [savingMood, setSavingMood] = useState(false)
+
   const maxLen = 140
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -30,18 +43,36 @@ export default function NewPost() {
     setLoading(true)
     setError('')
 
-    const { error } = await supabase.from('posts').insert({
-      user_id: user.id,
-      content: content.trim(),
-      genre: genre || null,
-      emotion: '達成感',
-      rating: 3,
-      is_public: isPublic,
-    })
+    const { data, error } = await supabase
+      .from('posts')
+      .insert({
+        user_id: user.id,
+        content: content.trim(),
+        genre: genre || null,
+        emotion: null,
+        rating: 0,
+        is_public: isPublic,
+      })
+      .select('id')
+      .single()
 
-    if (error) { setError(error.message); setLoading(false) }
-    else navigate('/')
+    if (error) {
+      setError(error.message)
+      setLoading(false)
+    } else {
+      setNewPostId(data.id)
+      setLoading(false)
+    }
   }
+
+  const handleMoodSelect = async (rating: number) => {
+    if (!newPostId || savingMood) return
+    setSavingMood(true)
+    await supabase.from('posts').update({ rating }).eq('id', newPostId)
+    navigate('/')
+  }
+
+  const handleSkip = () => navigate('/')
 
   return (
     <div className="max-w-lg mx-auto px-4 py-6 pb-24 md:pb-6">
@@ -139,6 +170,53 @@ export default function NewPost() {
           {loading ? '投稿中...' : '記録する'}
         </button>
       </form>
+
+      {/* ムード入力モーダル */}
+      <AnimatePresence>
+        {newPostId && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-end md:items-center justify-center bg-black/40"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-white w-full max-w-lg rounded-t-3xl md:rounded-3xl shadow-xl px-6 pt-6 pb-10 md:pb-8"
+              initial={{ y: 60, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 60, opacity: 0 }}
+              transition={{ type: 'spring', damping: 28, stiffness: 300 }}
+            >
+              <p className="text-center text-2xl mb-1">🎉</p>
+              <p className="text-center text-base font-bold text-gray-800 mb-1">記録できました！</p>
+              <p className="text-center text-sm text-gray-500 mb-6">今の気分はどうですか？</p>
+
+              <div className="flex justify-center gap-3 mb-6">
+                {MOODS.map(m => (
+                  <motion.button
+                    key={m.rating}
+                    onClick={() => handleMoodSelect(m.rating)}
+                    disabled={savingMood}
+                    whileHover={{ scale: 1.15 }}
+                    whileTap={{ scale: 0.9 }}
+                    className="flex flex-col items-center gap-1 disabled:opacity-50"
+                  >
+                    <span className="text-3xl">{m.emoji}</span>
+                    <span className="text-[10px] text-gray-400">{m.label}</span>
+                  </motion.button>
+                ))}
+              </div>
+
+              <button
+                onClick={handleSkip}
+                className="w-full text-center text-xs text-gray-400 hover:text-gray-600 py-1"
+              >
+                スキップ
+              </button>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   )
 }

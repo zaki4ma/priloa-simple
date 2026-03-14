@@ -12,6 +12,58 @@ interface PostData {
   content: string
   created_at: string
   genre: string | null
+  rating: number | null
+}
+
+const MOOD_EMOJI: Record<number, string> = {
+  1: '😔', 2: '😐', 3: '🙂', 4: '😊', 5: '🌟',
+}
+
+function MoodChart({ posts }: { posts: PostData[] }) {
+  // 直近14日分、日付ごとに最新のムードを取得
+  const days = Array.from({ length: 14 }, (_, i) => {
+    const d = new Date()
+    d.setDate(d.getDate() - (13 - i))
+    d.setHours(0, 0, 0, 0)
+    return d
+  })
+
+  const dayMoods = days.map(day => {
+    const dayStr = day.toDateString()
+    const dayPosts = posts.filter(p => {
+      return new Date(p.created_at).toDateString() === dayStr && p.rating && p.rating > 0
+    })
+    if (dayPosts.length === 0) return { day, rating: null }
+    // その日の最大ratingを代表値に
+    const rating = Math.max(...dayPosts.map(p => p.rating!))
+    return { day, rating }
+  })
+
+  const hasAnyMood = dayMoods.some(d => d.rating !== null)
+
+  return (
+    <div>
+      <div className="flex items-end gap-1">
+        {dayMoods.map(({ day, rating }, i) => (
+          <div key={i} className="flex-1 flex flex-col items-center gap-1">
+            {rating !== null ? (
+              <span className="text-lg leading-none">{MOOD_EMOJI[rating]}</span>
+            ) : (
+              <span className="w-1.5 h-1.5 rounded-full bg-gray-200 mb-1" />
+            )}
+            <p className="text-gray-300" style={{ fontSize: '8px' }}>
+              {day.getDate()}
+            </p>
+          </div>
+        ))}
+      </div>
+      {!hasAnyMood && (
+        <p className="text-center text-xs text-gray-400 mt-2">
+          記録後に気分を選ぶと表示されます
+        </p>
+      )}
+    </div>
+  )
 }
 
 const GENRE_LABELS: { key: string; short: string }[] = [
@@ -107,7 +159,7 @@ export default function Dashboard() {
     // 投稿データを取得
     supabase
       .from('posts')
-      .select('id, content, created_at, genre')
+      .select('id, content, created_at, genre, rating')
       .eq('user_id', user.id)
       .order('created_at', { ascending: false })
       .then(({ data, error }) => {
@@ -243,6 +295,11 @@ export default function Dashboard() {
                 <p key={i} className="flex-1 text-center text-gray-400" style={{ fontSize: '9px' }}>{label}</p>
               ))}
             </div>
+          </div>
+
+          <div className="bg-white rounded-2xl p-4 shadow-sm">
+            <p className="text-sm font-medium text-gray-700 mb-4">気分の記録（直近14日間）</p>
+            <MoodChart posts={allPosts} />
           </div>
 
           <div className="bg-white rounded-2xl p-4 shadow-sm">

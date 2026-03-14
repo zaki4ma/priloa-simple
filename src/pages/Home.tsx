@@ -45,7 +45,7 @@ export default function Home() {
   const [reflectionSaving, setReflectionSaving] = useState(false)
   const [reflectionEditing, setReflectionEditing] = useState(false)
   const [streak, setStreak] = useState(0)
-  const [pastPost, setPastPost] = useState<{ content: string; created_at: string; label: string } | null>(null)
+  const [pastPost, setPastPost] = useState<{ content: string; created_at: string; label: string; rating: number | null } | null>(null)
 
   const todayPosts = useMemo(() => {
     const today = new Date().toDateString()
@@ -87,7 +87,7 @@ export default function Home() {
     threshold.setDate(threshold.getDate() - 25)
     const { data } = await supabase
       .from('posts')
-      .select('content, created_at')
+      .select('content, created_at, rating')
       .eq('user_id', user.id)
       .lte('created_at', threshold.toISOString())
       .order('created_at', { ascending: true })
@@ -172,6 +172,18 @@ export default function Home() {
     return d.toLocaleDateString('ja-JP', { month: 'numeric', day: 'numeric' })
   }
 
+  const MOOD_EMOJI: Record<number, string> = { 1: '😔', 2: '😐', 3: '🙂', 4: '😊', 5: '🌟' }
+  const MOOD_MESSAGES: Record<number, string> = {
+    1: 'つらいときでも、記録できた自分を褒めよう',
+    2: 'ふつうの日も、積み重ねが力になる',
+    3: 'まあまあな日も、できたことは本物だよ',
+    4: 'いい気分！今日のできたことを記録しよう',
+    5: '絶好調！その調子で今日も記録しよう',
+  }
+  const todayMoodRatings = todayPosts.map(p => p.rating).filter((r): r is number => !!r && r > 0)
+  const todayMood = todayMoodRatings.length > 0 ? Math.max(...todayMoodRatings) : null
+  const homeMessage = todayMood ? MOOD_MESSAGES[todayMood] : '今日も何か「できた」ことを記録しよう'
+
   return (
     <div className="max-w-lg mx-auto px-4 py-6 pb-24 md:pb-6">
       <div className="flex items-center justify-between mb-4">
@@ -180,7 +192,7 @@ export default function Home() {
             {profile?.avatar} {profile?.nickname}
           </h1>
           <div className="flex items-center gap-2 mt-0.5">
-            <p className="text-sm text-gray-500">今日も何か「できた」ことを記録しよう</p>
+            <p className="text-sm text-gray-500">{homeMessage}</p>
             {streak > 0 && (
               <span className="flex items-center gap-0.5 text-xs font-medium text-orange-500 bg-orange-50 px-2 py-0.5 rounded-full">
                 🔥 {streak}日連続
@@ -234,9 +246,14 @@ export default function Home() {
         <div className="bg-amber-50 border border-amber-100 rounded-2xl p-4 shadow-sm mb-4">
           <p className="text-xs font-medium text-amber-600 mb-2">📖 {pastPost.label}の自分はこんなことができた</p>
           <p className="text-sm text-gray-800 leading-relaxed">{pastPost.content}</p>
-          <p className="text-xs text-amber-400 mt-2">
-            {new Date(pastPost.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}
-          </p>
+          <div className="flex items-center justify-between mt-2">
+            <p className="text-xs text-amber-400">
+              {new Date(pastPost.created_at).toLocaleDateString('ja-JP', { year: 'numeric', month: 'long', day: 'numeric' })}
+            </p>
+            {pastPost.rating && pastPost.rating > 0 && (
+              <span className="text-base" title="当時の気分">{MOOD_EMOJI[pastPost.rating]}</span>
+            )}
+          </div>
         </div>
       )}
 

@@ -14,6 +14,7 @@ export interface Post {
   user_id: string
   content: string
   genre: string | null
+  rating: number | null
   is_public: boolean
   created_at: string
   user_profiles?: UserProfile

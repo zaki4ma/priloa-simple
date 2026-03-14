@@ -7,6 +7,7 @@ interface PostData {
   content: string
   genre: string | null
   created_at: string
+  rating?: number | null
 }
 
 interface Props {
