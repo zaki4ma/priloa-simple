@@ -151,43 +151,43 @@ export default function ShareModal({ todayPosts, nickname, avatar, streak, onClo
             <p className="text-xs text-gray-400 mb-2">カードプレビュー</p>
 
             {/* カード本体（html2canvas対象） */}
-            <div ref={cardRef} className="rounded-2xl overflow-hidden shadow-md border border-green-100">
+            <div ref={cardRef} className="rounded-2xl overflow-hidden shadow-md" style={{ border: '1px solid #dcfce7' }}>
               {/* カードヘッダー */}
-              <div className="bg-gradient-to-r from-green-500 to-green-400 px-4 py-2.5 flex items-center justify-between">
+              <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: 'linear-gradient(to right, #22c55e, #4ade80)' }}>
                 <div className="flex items-center gap-1.5">
                   <img src="/logo_priloa.png" alt="Priloa" className="w-5 h-5" />
-                  <span className="text-white font-bold text-sm tracking-wide">Priloa</span>
+                  <span className="font-bold text-sm tracking-wide" style={{ color: '#ffffff' }}>Priloa</span>
                 </div>
-                <span className="text-green-100 text-xs">{today}</span>
+                <span className="text-xs" style={{ color: '#dcfce7' }}>{today}</span>
               </div>
 
               {/* カードボディ */}
-              <div className="bg-gradient-to-b from-green-50 to-white relative min-h-[200px]">
+              <div className="relative min-h-[200px]" style={{ background: 'linear-gradient(to bottom, #f0fdf4, #ffffff)' }}>
                 {/* ユーザー情報 */}
-                <div className="px-4 pt-3 pb-2 border-b border-green-100">
-                  <p className="text-sm font-bold text-gray-800">
+                <div className="px-4 pt-3 pb-2" style={{ borderBottom: '1px solid #dcfce7' }}>
+                  <p className="text-sm font-bold" style={{ color: '#1f2937' }}>
                     {avatar} {nickname}
-                    <span className="text-gray-500 font-normal"> の今日のできたこと</span>
+                    <span className="font-normal" style={{ color: '#6b7280' }}> の今日のできたこと</span>
                   </p>
                 </div>
 
                 {/* できたこと一覧 */}
                 <div className="px-4 pt-3 pb-4 pr-28">
                   {selectedPosts.length === 0 ? (
-                    <p className="text-xs text-gray-400 italic">投稿を選択してください</p>
+                    <p className="text-xs italic" style={{ color: '#9ca3af' }}>投稿を選択してください</p>
                   ) : (
                     <ul className="flex flex-col gap-2">
                       {selectedPosts.map(p => (
                         <li key={p.id} className="flex items-start gap-2">
-                          <span className="text-green-500 text-xs mt-0.5 shrink-0">✓</span>
-                          <span className="text-gray-800 text-xs leading-relaxed">{p.content}</span>
+                          <span className="text-xs mt-0.5 shrink-0" style={{ color: '#22c55e' }}>✓</span>
+                          <span className="text-xs leading-relaxed" style={{ color: '#1f2937' }}>{p.content}</span>
                         </li>
                       ))}
                     </ul>
                   )}
 
                   {streak > 0 && (
-                    <div className="mt-3 inline-flex items-center gap-1 bg-orange-50 text-orange-500 text-xs font-medium px-2.5 py-1 rounded-full">
+                    <div className="mt-3 inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: '#fff7ed', color: '#f97316' }}>
                       🔥 {streak}日連続記録中！
                     </div>
                   )}
@@ -202,9 +202,9 @@ export default function ShareModal({ todayPosts, nickname, avatar, streak, onClo
               </div>
 
               {/* カードフッター */}
-              <div className="bg-green-500 px-4 py-2 flex items-center justify-between">
-                <span className="text-green-100 text-[10px]">小さな「できた」を大切に</span>
-                <span className="text-green-200 text-[10px] font-medium">#Priloa</span>
+              <div className="px-4 py-2 flex items-center justify-between" style={{ backgroundColor: '#22c55e' }}>
+                <span style={{ color: '#dcfce7', fontSize: '10px' }}>小さな「できた」を大切に</span>
+                <span style={{ color: '#bbf7d0', fontSize: '10px', fontWeight: 500 }}>#Priloa</span>
               </div>
             </div>
           </div>
