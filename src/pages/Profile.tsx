@@ -73,6 +73,28 @@ export default function Profile() {
         >
           ログアウト
         </button>
+
+        <div className="text-center text-xs text-gray-400 space-y-1 pt-2">
+          <div className="flex items-center justify-center gap-4">
+            <a
+              href="https://x.com/priloa_me"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gray-600 transition-colors"
+            >
+              X @priloa_me
+            </a>
+            <span>·</span>
+            <a
+              href="https://forms.gle/dnkEsPyQiZMb2i4C7"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-gray-600 transition-colors"
+            >
+              お問い合わせ・報告
+            </a>
+          </div>
+        </div>
       </div>
     </div>
   )

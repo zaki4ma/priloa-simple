@@ -195,8 +195,27 @@ export default function LandingPage() {
       </section>
 
       {/* フッター */}
-      <footer className="text-center py-8 text-xs text-gray-400">
-        © 2025 Priloa
+      <footer className="text-center py-8 text-xs text-gray-400 space-y-2">
+        <div className="flex items-center justify-center gap-4">
+          <a
+            href="https://x.com/priloa_me"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-gray-600 transition-colors"
+          >
+            X @priloa_me
+          </a>
+          <span>·</span>
+          <a
+            href="https://forms.gle/dnkEsPyQiZMb2i4C7"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="hover:text-gray-600 transition-colors"
+          >
+            お問い合わせ・報告
+          </a>
+        </div>
+        <div>© 2025 Priloa</div>
       </footer>
 
     </div>
