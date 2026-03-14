@@ -39,6 +39,7 @@ export default function ShareModal({ todayPosts, nickname, avatar, streak, onClo
     () => new Set(todayPosts.map(p => p.id))
   )
   const [capturing, setCapturing] = useState(false)
+  const [captureError, setCaptureError] = useState('')
   const cardRef = useRef<HTMLDivElement>(null)
 
   const selectedPosts = useMemo(
@@ -68,19 +69,22 @@ export default function ShareModal({ todayPosts, nickname, avatar, streak, onClo
   const handleSaveImage = async () => {
     if (!cardRef.current || capturing) return
     setCapturing(true)
+    setCaptureError('')
     try {
       const canvas = await html2canvas(cardRef.current, {
         scale: 2,
         useCORS: true,
-        backgroundColor: null,
+        allowTaint: true,
+        backgroundColor: '#ffffff',
+        logging: false,
       })
 
       const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'))
-      if (!blob) return
+      if (!blob) throw new Error('画像の生成に失敗しました')
 
       // モバイル: Web Share API（カメラロールへ保存可能）
-      if (navigator.canShare?.({ files: [new File([blob], 'priloa.png', { type: 'image/png' })] })) {
-        const file = new File([blob], 'priloa-today.png', { type: 'image/png' })
+      const file = new File([blob], 'priloa-today.png', { type: 'image/png' })
+      if (navigator.canShare?.({ files: [file] })) {
         await navigator.share({ files: [file] })
       } else {
         // PC: ダウンロード
@@ -91,6 +95,11 @@ export default function ShareModal({ todayPosts, nickname, avatar, streak, onClo
         a.click()
         URL.revokeObjectURL(url)
       }
+    } catch (e) {
+      const msg = e instanceof Error ? e.message : '不明なエラー'
+      // ユーザーが共有シートをキャンセルした場合は無視
+      if (msg.includes('AbortError') || msg.includes('cancel') || msg.toLowerCase().includes('abort')) return
+      setCaptureError(`画像の生成に失敗しました: ${msg}`)
     } finally {
       setCapturing(false)
     }
@@ -146,7 +155,7 @@ export default function ShareModal({ todayPosts, nickname, avatar, streak, onClo
               {/* カードヘッダー */}
               <div className="bg-gradient-to-r from-green-500 to-green-400 px-4 py-2.5 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  <img src="/logo_priloa.png" alt="Priloa" className="w-5 h-5" crossOrigin="anonymous" />
+                  <img src="/logo_priloa.png" alt="Priloa" className="w-5 h-5" />
                   <span className="text-white font-bold text-sm tracking-wide">Priloa</span>
                 </div>
                 <span className="text-green-100 text-xs">{today}</span>
@@ -188,7 +197,6 @@ export default function ShareModal({ todayPosts, nickname, avatar, streak, onClo
                 <img
                   src="/chara_teage.png"
                   alt=""
-                  crossOrigin="anonymous"
                   className="absolute bottom-0 right-0 w-28 h-28 object-contain"
                 />
               </div>
@@ -213,6 +221,9 @@ export default function ShareModal({ todayPosts, nickname, avatar, streak, onClo
               <><ImageDown size={16} /> 画像を保存する</>
             )}
           </button>
+          {captureError && (
+            <p className="text-xs text-red-500 text-center -mt-2">{captureError}</p>
+          )}
 
           {/* Xテキストシェア（サブ） */}
           <div className="border-t border-gray-100 pt-3">
