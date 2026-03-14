@@ -50,6 +50,7 @@ export default function NewPost() {
         content: content.trim(),
         genre: genre || null,
         emotion: '達成感',
+        rating: 3,
         is_public: isPublic,
       })
       .select('id')
