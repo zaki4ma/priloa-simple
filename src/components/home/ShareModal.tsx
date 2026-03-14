@@ -151,43 +151,43 @@ export default function ShareModal({ todayPosts, nickname, avatar, streak, onClo
             <p className="text-xs text-gray-400 mb-2">カードプレビュー</p>
 
             {/* カード本体（html2canvas対象） */}
-            <div ref={cardRef} className="rounded-2xl overflow-hidden shadow-md" style={{ border: '1px solid #dcfce7' }}>
+            <div ref={cardRef} style={{ border: '1px solid #dcfce7', borderRadius: '16px', overflow: 'hidden', boxShadow: '0 2px 8px rgba(0,0,0,0.08)' }}>
               {/* カードヘッダー */}
-              <div className="px-4 py-2.5 flex items-center justify-between" style={{ background: 'linear-gradient(to right, #22c55e, #4ade80)' }}>
-                <div className="flex items-center gap-1.5">
-                  <img src="/logo_priloa.png" alt="Priloa" className="w-5 h-5" />
-                  <span className="font-bold text-sm tracking-wide" style={{ color: '#ffffff' }}>Priloa</span>
+              <div style={{ background: 'linear-gradient(to right, #22c55e, #4ade80)', padding: '10px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                  <img src="/logo_priloa.png" alt="Priloa" style={{ width: '20px', height: '20px', display: 'block' }} />
+                  <span style={{ color: '#ffffff', fontWeight: 700, fontSize: '14px', letterSpacing: '0.05em', lineHeight: 1 }}>Priloa</span>
                 </div>
-                <span className="text-xs" style={{ color: '#dcfce7' }}>{today}</span>
+                <span style={{ color: '#dcfce7', fontSize: '12px', lineHeight: 1 }}>{today}</span>
               </div>
 
               {/* カードボディ */}
-              <div className="relative min-h-[200px]" style={{ background: 'linear-gradient(to bottom, #f0fdf4, #ffffff)' }}>
+              <div style={{ background: 'linear-gradient(to bottom, #f0fdf4, #ffffff)', position: 'relative', minHeight: '200px' }}>
                 {/* ユーザー情報 */}
-                <div className="px-4 pt-3 pb-2" style={{ borderBottom: '1px solid #dcfce7' }}>
-                  <p className="text-sm font-bold" style={{ color: '#1f2937' }}>
+                <div style={{ padding: '12px 16px 8px', borderBottom: '1px solid #dcfce7' }}>
+                  <p style={{ fontSize: '14px', fontWeight: 700, color: '#1f2937', margin: 0, lineHeight: 1.5 }}>
                     {avatar} {nickname}
-                    <span className="font-normal" style={{ color: '#6b7280' }}> の今日のできたこと</span>
+                    <span style={{ fontWeight: 400, color: '#6b7280' }}> の今日のできたこと</span>
                   </p>
                 </div>
 
                 {/* できたこと一覧 */}
-                <div className="px-4 pt-3 pb-4 pr-28">
+                <div style={{ padding: '12px 112px 16px 16px' }}>
                   {selectedPosts.length === 0 ? (
-                    <p className="text-xs italic" style={{ color: '#9ca3af' }}>投稿を選択してください</p>
+                    <p style={{ fontSize: '12px', color: '#9ca3af', fontStyle: 'italic', margin: 0 }}>投稿を選択してください</p>
                   ) : (
-                    <ul className="flex flex-col gap-2">
+                    <ul style={{ listStyle: 'none', padding: 0, margin: 0, display: 'flex', flexDirection: 'column', gap: '8px' }}>
                       {selectedPosts.map(p => (
-                        <li key={p.id} className="flex items-start gap-2">
-                          <span className="text-xs mt-0.5 shrink-0" style={{ color: '#22c55e' }}>✓</span>
-                          <span className="text-xs leading-relaxed" style={{ color: '#1f2937' }}>{p.content}</span>
+                        <li key={p.id} style={{ display: 'flex', alignItems: 'flex-start', gap: '8px' }}>
+                          <span style={{ color: '#22c55e', fontSize: '12px', lineHeight: '1.6', flexShrink: 0 }}>✓</span>
+                          <span style={{ fontSize: '12px', color: '#1f2937', lineHeight: '1.6' }}>{p.content}</span>
                         </li>
                       ))}
                     </ul>
                   )}
 
                   {streak > 0 && (
-                    <div className="mt-3 inline-flex items-center gap-1 text-xs font-medium px-2.5 py-1 rounded-full" style={{ backgroundColor: '#fff7ed', color: '#f97316' }}>
+                    <div style={{ marginTop: '12px', display: 'inline-flex', alignItems: 'center', gap: '4px', backgroundColor: '#fff7ed', color: '#f97316', fontSize: '12px', fontWeight: 500, padding: '4px 10px', borderRadius: '9999px', lineHeight: 1 }}>
                       🔥 {streak}日連続記録中！
                     </div>
                   )}
@@ -197,14 +197,14 @@ export default function ShareModal({ todayPosts, nickname, avatar, streak, onClo
                 <img
                   src="/chara_teage.png"
                   alt=""
-                  className="absolute bottom-0 right-0 w-28 h-28 object-contain"
+                  style={{ position: 'absolute', bottom: 0, right: 0, width: '112px', height: '112px', objectFit: 'contain' }}
                 />
               </div>
 
               {/* カードフッター */}
-              <div className="px-4 py-2 flex items-center justify-between" style={{ backgroundColor: '#22c55e' }}>
-                <span style={{ color: '#dcfce7', fontSize: '10px' }}>小さな「できた」を大切に</span>
-                <span style={{ color: '#bbf7d0', fontSize: '10px', fontWeight: 500 }}>#Priloa</span>
+              <div style={{ backgroundColor: '#22c55e', padding: '8px 16px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                <span style={{ color: '#dcfce7', fontSize: '10px', lineHeight: 1 }}>小さな「できた」を大切に</span>
+                <span style={{ color: '#bbf7d0', fontSize: '10px', fontWeight: 500, lineHeight: 1 }}>#Priloa</span>
               </div>
             </div>
           </div>
