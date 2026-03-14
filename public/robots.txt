@@ -1,0 +1,11 @@
+User-agent: *
+Allow: /
+Disallow: /home
+Disallow: /new
+Disallow: /garden
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /thought-records
+Disallow: /reset-password
+
+Sitemap: https://priloa.com/sitemap.xml
