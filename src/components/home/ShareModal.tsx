@@ -1,5 +1,6 @@
-import { useState, useMemo } from 'react'
-import { X, Camera } from 'lucide-react'
+import { useState, useMemo, useRef } from 'react'
+import { X, ImageDown, Loader2 } from 'lucide-react'
+import html2canvas from 'html2canvas'
 import type { Post } from '../../types'
 
 interface Props {
@@ -37,6 +38,8 @@ export default function ShareModal({ todayPosts, nickname, avatar, streak, onClo
   const [selected, setSelected] = useState<Set<string>>(
     () => new Set(todayPosts.map(p => p.id))
   )
+  const [capturing, setCapturing] = useState(false)
+  const cardRef = useRef<HTMLDivElement>(null)
 
   const selectedPosts = useMemo(
     () => todayPosts.filter(p => selected.has(p.id)),
@@ -60,6 +63,37 @@ export default function ShareModal({ todayPosts, nickname, avatar, streak, onClo
       `https://twitter.com/intent/tweet?text=${encodeURIComponent(tweetText)}`,
       '_blank'
     )
+  }
+
+  const handleSaveImage = async () => {
+    if (!cardRef.current || capturing) return
+    setCapturing(true)
+    try {
+      const canvas = await html2canvas(cardRef.current, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: null,
+      })
+
+      const blob = await new Promise<Blob | null>(resolve => canvas.toBlob(resolve, 'image/png'))
+      if (!blob) return
+
+      // モバイル: Web Share API（カメラロールへ保存可能）
+      if (navigator.canShare?.({ files: [new File([blob], 'priloa.png', { type: 'image/png' })] })) {
+        const file = new File([blob], 'priloa-today.png', { type: 'image/png' })
+        await navigator.share({ files: [file] })
+      } else {
+        // PC: ダウンロード
+        const url = URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = 'priloa-today.png'
+        a.click()
+        URL.revokeObjectURL(url)
+      }
+    } finally {
+      setCapturing(false)
+    }
   }
 
   const today = formatDateJa(new Date())
@@ -105,14 +139,14 @@ export default function ShareModal({ todayPosts, nickname, avatar, streak, onClo
 
           {/* シェアカードプレビュー */}
           <div>
-            <p className="text-xs text-gray-400 mb-2">カードプレビュー（スクリーンショットして使えます）</p>
+            <p className="text-xs text-gray-400 mb-2">カードプレビュー</p>
 
-            {/* カード本体 */}
-            <div className="rounded-2xl overflow-hidden shadow-md border border-green-100 select-none">
+            {/* カード本体（html2canvas対象） */}
+            <div ref={cardRef} className="rounded-2xl overflow-hidden shadow-md border border-green-100">
               {/* カードヘッダー */}
               <div className="bg-gradient-to-r from-green-500 to-green-400 px-4 py-2.5 flex items-center justify-between">
                 <div className="flex items-center gap-1.5">
-                  <img src="/logo_priloa.png" alt="Priloa" className="w-5 h-5" />
+                  <img src="/logo_priloa.png" alt="Priloa" className="w-5 h-5" crossOrigin="anonymous" />
                   <span className="text-white font-bold text-sm tracking-wide">Priloa</span>
                 </div>
                 <span className="text-green-100 text-xs">{today}</span>
@@ -150,10 +184,11 @@ export default function ShareModal({ todayPosts, nickname, avatar, streak, onClo
                   )}
                 </div>
 
-                {/* キャラクター画像 */}
+                {/* キャラクター */}
                 <img
                   src="/chara_teage.png"
                   alt=""
+                  crossOrigin="anonymous"
                   className="absolute bottom-0 right-0 w-28 h-28 object-contain"
                 />
               </div>
@@ -164,15 +199,22 @@ export default function ShareModal({ todayPosts, nickname, avatar, streak, onClo
                 <span className="text-green-200 text-[10px] font-medium">#Priloa</span>
               </div>
             </div>
-
-            {/* スクリーンショット案内 */}
-            <div className="mt-2.5 flex items-center gap-1.5 text-xs text-gray-400 justify-center">
-              <Camera size={12} />
-              <span>このカードをスクリーンショットして投稿できます</span>
-            </div>
           </div>
 
-          {/* Xでテキストシェア（サブ） */}
+          {/* 画像保存ボタン */}
+          <button
+            onClick={handleSaveImage}
+            disabled={capturing || selectedPosts.length === 0}
+            className="w-full bg-green-500 text-white rounded-full py-3 text-sm font-medium hover:bg-green-600 disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+          >
+            {capturing ? (
+              <><Loader2 size={16} className="animate-spin" /> 生成中...</>
+            ) : (
+              <><ImageDown size={16} /> 画像を保存する</>
+            )}
+          </button>
+
+          {/* Xテキストシェア（サブ） */}
           <div className="border-t border-gray-100 pt-3">
             <p className="text-xs text-gray-400 mb-2">またはテキストで投稿</p>
             <button
