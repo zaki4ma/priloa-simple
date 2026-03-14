@@ -1,10 +1,10 @@
 import { useState, useEffect, useMemo } from 'react'
 import { Link } from 'react-router-dom'
-import { Plus, Share2, Trash2 } from 'lucide-react'
+import { Plus, Share2, Trash2, Pencil } from 'lucide-react'
 import { supabase } from '../lib/supabase'
 import { useAuth } from '../contexts/AuthContext'
 import type { Post } from '../types'
-import { STAMPS } from '../types'
+import { STAMPS, GENRES } from '../types'
 import ShareModal from '../components/home/ShareModal'
 
 const UNLOCK_THRESHOLD = 30
@@ -36,6 +36,10 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [showShare, setShowShare] = useState(false)
   const [deletingId, setDeletingId] = useState<string | null>(null)
+  const [editingId, setEditingId] = useState<string | null>(null)
+  const [editContent, setEditContent] = useState('')
+  const [editGenre, setEditGenre] = useState<string | null>(null)
+  const [editIsPublic, setEditIsPublic] = useState(true)
   const [todayReflection, setTodayReflection] = useState<{ id: string; comment: string } | null>(null)
   const [reflectionInput, setReflectionInput] = useState('')
   const [reflectionSaving, setReflectionSaving] = useState(false)
@@ -125,6 +129,28 @@ export default function Home() {
     setReflectionSaving(false)
     setReflectionEditing(false)
     fetchTodayReflection()
+  }
+
+  const handleStartEdit = (post: Post) => {
+    setEditingId(post.id)
+    setEditContent(post.content)
+    setEditGenre(post.genre)
+    setEditIsPublic(post.is_public)
+    setDeletingId(null)
+  }
+
+  const handleSaveEdit = async () => {
+    if (!editingId || !editContent.trim()) return
+    await supabase
+      .from('posts')
+      .update({ content: editContent.trim(), genre: editGenre, is_public: editIsPublic })
+      .eq('id', editingId)
+    setPosts(prev => prev.map(p =>
+      p.id === editingId
+        ? { ...p, content: editContent.trim(), genre: editGenre, is_public: editIsPublic }
+        : p
+    ))
+    setEditingId(null)
   }
 
   const handleDelete = async (postId: string) => {
@@ -277,64 +303,129 @@ export default function Home() {
         <div className="flex flex-col gap-3">
           {posts.map(post => (
             <div key={post.id} className="bg-white rounded-2xl p-4 shadow-sm">
-              <p className="text-gray-800 text-sm leading-relaxed">{post.content}</p>
-              <div className="flex items-center justify-between mt-3">
-                <div className="flex items-center gap-2">
-                  {post.genre && (
-                    <span className="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">
-                      {post.genre}
-                    </span>
-                  )}
-                  {!post.is_public && (
-                    <span className="text-xs bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">
-                      非公開
-                    </span>
-                  )}
-                </div>
-                <div className="flex items-center gap-3">
-                  {post.reactions && post.reactions.length > 0 && (
-                    <div className="flex gap-1 text-xs text-gray-400">
-                      {STAMPS.map(s => {
-                        const count = post.reactions!.filter(r => r.sticker_type === s.type).length
-                        return count > 0 ? (
-                          <span key={s.type}>{s.emoji}{count}</span>
-                        ) : null
-                      })}
-                    </div>
-                  )}
-                  <span className="text-xs text-gray-400">{formatDate(post.created_at)}</span>
-                  {deletingId === post.id ? (
-                    <div className="flex items-center gap-1.5">
-                      <button
-                        onClick={() => handleDelete(post.id)}
-                        className="text-xs text-red-500 font-medium hover:text-red-600"
+              {editingId === post.id ? (
+                <div>
+                  <textarea
+                    value={editContent}
+                    onChange={e => setEditContent(e.target.value)}
+                    maxLength={140}
+                    rows={3}
+                    autoFocus
+                    className="w-full text-sm text-gray-800 border border-gray-200 rounded-lg px-3 py-2 outline-none focus:border-green-400 resize-none"
+                  />
+                  <div className="flex items-center justify-between mt-2">
+                    <div className="flex items-center gap-2">
+                      <select
+                        value={editGenre ?? ''}
+                        onChange={e => setEditGenre(e.target.value || null)}
+                        className="text-xs border border-gray-200 rounded-lg px-2 py-1.5 outline-none focus:border-green-400 text-gray-600 bg-white"
                       >
-                        削除
-                      </button>
+                        <option value="">ジャンルなし</option>
+                        {GENRES.map(g => <option key={g} value={g}>{g}</option>)}
+                      </select>
+                      <label className="flex items-center gap-1 text-xs text-gray-500 cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={editIsPublic}
+                          onChange={e => setEditIsPublic(e.target.checked)}
+                          className="rounded"
+                        />
+                        公開
+                      </label>
+                    </div>
+                    <div className="flex items-center gap-2">
                       <button
-                        onClick={() => setDeletingId(null)}
+                        onClick={() => setEditingId(null)}
                         className="text-xs text-gray-400 hover:text-gray-600"
                       >
                         キャンセル
                       </button>
+                      <button
+                        onClick={handleSaveEdit}
+                        disabled={!editContent.trim()}
+                        className="text-xs bg-green-500 text-white rounded-full px-3 py-1.5 hover:bg-green-600 disabled:opacity-40"
+                      >
+                        保存
+                      </button>
                     </div>
-                  ) : (
-                    <button
-                      onClick={() => setDeletingId(post.id)}
-                      className="text-gray-300 hover:text-red-400 transition-colors"
-                    >
-                      <Trash2 size={14} />
-                    </button>
-                  )}
+                  </div>
                 </div>
-              </div>
+              ) : (
+                <>
+                  <p className="text-gray-800 text-sm leading-relaxed">{post.content}</p>
+                  <div className="flex items-center justify-between mt-3">
+                    <div className="flex items-center gap-2">
+                      {post.genre && (
+                        <span className="text-xs bg-green-50 text-green-600 px-2 py-0.5 rounded-full">
+                          {post.genre}
+                        </span>
+                      )}
+                      {!post.is_public && (
+                        <span className="text-xs bg-gray-100 text-gray-400 px-2 py-0.5 rounded-full">
+                          非公開
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex items-center gap-3">
+                      {post.reactions && post.reactions.length > 0 && (
+                        <div className="flex gap-1 text-xs text-gray-400">
+                          {STAMPS.map(s => {
+                            const count = post.reactions!.filter(r => r.sticker_type === s.type).length
+                            return count > 0 ? (
+                              <span key={s.type}>{s.emoji}{count}</span>
+                            ) : null
+                          })}
+                        </div>
+                      )}
+                      <span className="text-xs text-gray-400">{formatDate(post.created_at)}</span>
+                      {deletingId === post.id ? (
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => handleDelete(post.id)}
+                            className="text-xs text-red-500 font-medium hover:text-red-600"
+                          >
+                            削除
+                          </button>
+                          <button
+                            onClick={() => setDeletingId(null)}
+                            className="text-xs text-gray-400 hover:text-gray-600"
+                          >
+                            キャンセル
+                          </button>
+                        </div>
+                      ) : (
+                        <div className="flex items-center gap-1.5">
+                          <button
+                            onClick={() => handleStartEdit(post)}
+                            className="text-gray-300 hover:text-green-400 transition-colors"
+                          >
+                            <Pencil size={14} />
+                          </button>
+                          <button
+                            onClick={() => setDeletingId(post.id)}
+                            className="text-gray-300 hover:text-red-400 transition-colors"
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           ))}
         </div>
       )}
 
       {showShare && (
-        <ShareModal todayPosts={todayPosts} onClose={() => setShowShare(false)} />
+        <ShareModal
+          todayPosts={todayPosts}
+          nickname={profile?.nickname ?? ''}
+          avatar={profile?.avatar ?? '🌱'}
+          streak={streak}
+          onClose={() => setShowShare(false)}
+        />
       )}
     </div>
   )
