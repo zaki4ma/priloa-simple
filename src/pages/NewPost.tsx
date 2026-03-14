@@ -49,7 +49,7 @@ export default function NewPost() {
         user_id: user.id,
         content: content.trim(),
         genre: genre || null,
-        emotion: null,
+        emotion: '達成感',
         rating: 0,
         is_public: isPublic,
       })
